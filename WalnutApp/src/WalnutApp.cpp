@@ -29,6 +29,76 @@ string cleansePath(const string& path)
 	return output;
 }
 
+std::string SplitTextWithNewlines(const std::string& text, float maxWidth)
+{
+	std::string result;
+	std::string currentLine;
+	float currentWidth = 0.0f;
+	size_t lastSpaceIdx = 0;
+
+	for (size_t i = 0; i < text.size(); ++i)
+	{
+		char c = text[i];
+		float charWidth = ImGui::CalcTextSize(&c, &c + 1).x;
+
+		// If adding the current character exceeds the maximum width, handle newline insertion
+		if (currentWidth + charWidth > maxWidth)
+		{
+			if (isspace(c) && i > lastSpaceIdx)
+			{
+				// Insert newline at the last space character
+				result += currentLine.substr(0, lastSpaceIdx) + "\n";
+				currentLine = currentLine.substr(lastSpaceIdx + 1);
+				currentWidth = ImGui::CalcTextSize(currentLine.c_str()).x;
+				lastSpaceIdx = 0;
+			}
+			else
+			{
+				// If there's no space character nearby, insert a newline
+				result += currentLine + "\n";
+				currentLine.clear();
+				currentWidth = 0.0f;
+			}
+		}
+
+		currentLine += c;
+		currentWidth += charWidth;
+
+		if (isspace(c))
+			lastSpaceIdx = i;
+	}
+
+	if (!currentLine.empty())
+		result += currentLine;
+
+	return result;
+}
+
+void RenderGameGrid(ImVec2 buttonSize)
+{
+	// Calculate the number of buttons per row and column based on paretn frames available width and height
+	int buttonsPerRow = static_cast<int>(ImGui::GetContentRegionAvail().x / (buttonSize.x + 8));
+	int remainingWidth = ImGui::GetContentRegionAvail().x - buttonsPerRow * (buttonSize.x + 8);
+	float padding = remainingWidth / (buttonsPerRow - 1);
+
+	int row = 0;
+	for (const auto& [game, manifest] : registered_games.items()) {
+		if (row != 0 && row % buttonsPerRow != 0)
+			ImGui::SameLine(0, padding);
+
+		if (game_images.count((string)manifest["name"]) > 0)
+		{
+			ImGui::ImageButton(game_images[(string)manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0);
+		}
+		else
+		{
+			ImGui::Button(SplitTextWithNewlines(game, buttonSize.x).c_str(), buttonSize);
+		}
+
+		row++;
+	}
+}
+
 class MainLayer : public Walnut::Layer
 {
 public:
@@ -38,16 +108,14 @@ public:
 		ImGui::InputText("Path", path, IM_ARRAYSIZE(path));
 		if (ImGui::Button("Add")) {
 			DetectInstalls(cleansePath(path));
+			memset(path, 0, IM_ARRAYSIZE(path));
 		}
 		ImGui::End();
 
 		ImGui::Begin("Detected Games");
-		for (const auto& [game, manifest] : registered_games.items()) {
-			ImGui::Text("%s", game.c_str());
-		}
+		RenderGameGrid({120, 180});
 		ImGui::End();
 
-		//ImGui::ShowDemoWindow();
 	}
 private:
 	char path[256];

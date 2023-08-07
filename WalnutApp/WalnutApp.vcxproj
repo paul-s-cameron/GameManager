@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="json.hpp" />
     <ClInclude Include="ManifestParser.hpp" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="Steam.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

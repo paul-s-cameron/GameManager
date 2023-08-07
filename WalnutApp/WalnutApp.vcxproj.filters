@@ -8,5 +8,6 @@
     <ClInclude Include="json.hpp" />
     <ClInclude Include="Steam.h" />
     <ClInclude Include="ManifestParser.hpp" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
 </Project>
