@@ -1,3 +1,5 @@
+.vs/
+
 # Prerequisites
 *.d
 
@@ -30,3 +32,48 @@
 *.exe
 *.out
 *.app
+
+syntax: glob
+
+.DS_Store
+
+*.bak
+*.orig
+*~
+
+build
+bin
+obj
+release
+ipch
+src/scripts.c
+**.lnt
+**.vlstatus
+
+Makefile
+*.make
+*.xcodeproj
+*.xcworkspace
+*.swp
+*.sdf
+*.sln
+*.suo
+*.ncb
+*.vcproj*
+*.vcxproj*
+*.VC.opendb
+*.VC.db
+*.opensdf
+*.workspace
+*.project
+*.tags
+*.sublime-*
+.cproject
+.settings
+.buildpath
+
+*.bbprojectsettings
+Scratchpad.txt
+Unix Worksheet.worksheet
+project.bbprojectdata
+Premake4.tmproj
