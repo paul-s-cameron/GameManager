@@ -10,5 +10,4 @@ namespace Steam
 	inline json registered_games;
 
 	void DetectInstalls(string);
-	json ParseManifest(string);
 }

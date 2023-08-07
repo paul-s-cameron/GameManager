@@ -6,28 +6,51 @@
 
 #include <list>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 
 #include "../json.hpp"
 #include "../Steam.h"
-#include "../ManifestParser.h"
+#include "../ManifestParser.hpp"
 
 using namespace std;
 using namespace Steam;
 using namespace m_parser;
 using json = nlohmann::json;
 
+string cleansePath(const string& path)
+{
+	string output = path;
+	for (size_t i = 0; i < output.length(); ++i) {
+		if (output[i] == '\\') {
+			output[i] = '/';
+		}
+	}
+	return output;
+}
+
 class MainLayer : public Walnut::Layer
 {
 public:
 	virtual void OnUIRender() override
 	{
-		ImGui::Begin("Hello");
-		ImGui::Button("Button");
+		ImGui::Begin("Add game path");
+		ImGui::InputText("Path", path, IM_ARRAYSIZE(path));
+		if (ImGui::Button("Add")) {
+			DetectInstalls(cleansePath(path));
+		}
 		ImGui::End();
 
-		ImGui::ShowDemoWindow();
+		ImGui::Begin("Detected Games");
+		for (const auto& [game, manifest] : registered_games.items()) {
+			ImGui::Text("%s", game.c_str());
+		}
+		ImGui::End();
+
+		//ImGui::ShowDemoWindow();
 	}
+private:
+	char path[256];
 };
 
 Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
@@ -40,8 +63,6 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	std::shared_ptr<MainLayer> mainLayer = std::make_shared<MainLayer>();
 	app->PushLayer(mainLayer);
 	app->SetMenubarCallback([app, mainLayer](){});
-
-	// Startup
 
 	return app;
 }
