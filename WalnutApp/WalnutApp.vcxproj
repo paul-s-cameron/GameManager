@@ -144,7 +144,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Steam.cpp" />
+    <ClCompile Include="src\includes\Steam\Steam.cpp" />
+    <ClCompile Include="src\includes\utils.cpp" />
     <ClCompile Include="src\WalnutApp.cpp">
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -157,15 +158,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="json.hpp" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="Steam.h" />
+    <ClInclude Include="src\includes\globals.h" />
+    <ClInclude Include="src\includes\json.hpp" />
+    <ClInclude Include="src\includes\ManifestParser.hpp" />
+    <ClInclude Include="src\includes\Steam\Steam.h" />
+    <ClInclude Include="src\includes\thumbnail.h" />
+    <ClInclude Include="src\includes\utils.h" />
     <ClInclude Include="thumbnail.h" />
-    <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="GameManager-Icon.ico" />
-    <Image Include="GameManager-Icon.png" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WalnutApp.rc" />

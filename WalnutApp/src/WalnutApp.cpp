@@ -1,18 +1,24 @@
 #pragma once
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
-
 #include "Walnut/Image.h"
 #include "Walnut/UI/UI.h"
-#include <imgui.h>
 
-#include "../Steam.h"
-#include "../json.hpp"
-#include "../utils.hpp"
+#include <filesystem>
+#include <Windows.h>
+#include <imgui.h>
+#include <fstream>
+
+#include "includes/utils.h"
+#include "includes/json.hpp"
+#include "includes/globals.h"
+#include "includes/thumbnail.h"
+#include "includes/Steam/Steam.h"
 
 using namespace std;
 using namespace utils;
 using namespace Steam;
+namespace fs = filesystem;
 using json = nlohmann::json;
 
 void RenderGameGrid(ImVec2 buttonSize, const char* filter)
@@ -38,7 +44,11 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 
 		ImGui::SetCurrentFont(font);
 		int row = 0;
-		for (const auto& [game, manifest] : registered_games[drive].items()) {
+		for (auto it = registered_games[drive].begin(); it != registered_games[drive].end(); ) {
+			const auto& entry = *(it++);
+			string game = entry["name"];
+			json manifest = entry;
+
 			string name_lowered = game;
 			string filter_lowered = filter;
 			transform(name_lowered.begin(), name_lowered.end(), name_lowered.begin(), ::tolower);
@@ -60,6 +70,19 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 				if (ButtonCenter(game.c_str(), buttonSize))
 					selected_game = manifest;
 			}
+			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
+				ImGui::OpenPopup(string(manifest["appid"]).c_str());
+			}
+			if (ImGui::BeginPopup(string(manifest["appid"]).c_str()))
+			{
+				if (ImGui::MenuItem("Launch"))
+					RunGame(manifest["appid"]);
+				if (ImGui::MenuItem("SteamDB"))
+					OpenSteamDB(manifest["appid"]);
+				if (ImGui::MenuItem("Remove"))
+					RemoveGame(drive, manifest["name"]);
+				ImGui::EndPopup();
+			}
 
 			row++;
 		}
@@ -70,41 +93,49 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 
 void RenderGameInfo()
 {
-	if (selected_game.empty())
-		return;
-
-	// Get game icon
-	ImVec2 iconSize = { 120, 190 };
-	shared_ptr<Walnut::Image> game_icon;
-	if (game_images.count(selected_game["name"]) != 0)
+	if (ImGui::Begin("Game Info", false, ImGuiWindowFlags_NoScrollbar))
 	{
-		game_icon = game_images[selected_game["name"]];
+		if (!selected_game.empty())
+		{
+			// Get game icon
+			ImVec2 iconSize = { 120, 190 };
+			shared_ptr<Walnut::Image> game_icon;
+			if (game_images.count(selected_game["name"]) != 0)
+			{
+				game_icon = game_images[selected_game["name"]];
+			}
+			else
+			{
+				game_icon = default_thumbnail;
+			}
+
+			// Render game icon at center
+			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (iconSize.x / 2));
+			ImGui::Image(game_icon.get()->GetDescriptorSet(), iconSize);
+			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (ImGui::CalcTextSize(string(selected_game["name"]).c_str()).x / 2));
+			ImGui::Text(string(selected_game["name"]).c_str());
+
+			ImGui::Separator();
+
+			float buttonWidth = ImGui::GetContentRegionAvail().x / 2 - 5;
+			if (ImGui::Button("Play", { buttonWidth, 50 }))
+				RunGame(selected_game["appid"]);
+
+			ImGui::SameLine(0, 5);
+
+			if (ImGui::Button("SteamDB", { buttonWidth, 50 }))
+			{
+				OpenSteamDB(selected_game["appid"]);
+			}
+
+			if (ImGui::TreeNode("Manifest"))
+			{
+				DisplayJSON(selected_game);
+				ImGui::TreePop();
+			}
+		}
 	}
-	else
-	{
-		game_icon = default_thumbnail;
-	}
-
-	// Render game icon at center
-	ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (iconSize.x / 2));
-	ImGui::Image(game_icon.get()->GetDescriptorSet(), iconSize);
-	ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (ImGui::CalcTextSize(string(selected_game["name"]).c_str()).x / 2));
-	ImGui::Text(string(selected_game["name"]).c_str());
-
-	ImGui::Separator();
-
-	float buttonWidth = ImGui::GetContentRegionAvail().x / 2 - 5;
-	if (ImGui::Button("Play", { buttonWidth, 50 }))
-		RunGame(selected_game["appid"]);
-	ImGui::SameLine(0, 5);
-	if (ImGui::Button("Uninstall", { buttonWidth, 50 }))
-		//UninstallGame(selected_game["appid"]);
-
-	if (ImGui::TreeNode("Manifest"))
-	{
-		DisplayJSON(selected_game);
-		ImGui::TreePop();
-	}
+	ImGui::End();
 }
 
 class MainLayer : public Walnut::Layer
@@ -132,6 +163,14 @@ public:
 			file >> registered_games;
 			LoadGameIcons();
 		}
+		else
+		{
+			string default_path = "C:\\Program Files (x86)\\Steam\\steamapps";
+			if (fs::exists(default_path)) {
+				DetectInstalls(default_path);
+				LoadGameIcons();
+			}
+		}
 
 		// GUI setup
 		ImGui::GetStyle().FrameRounding = 0.0f;
@@ -139,22 +178,22 @@ public:
 
 	virtual void OnUIRender() override
 	{
-		ImGui::Begin("Game Browser");
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 180);
-		ImGui::InputTextWithHint("##Input", "Search", filter, IM_ARRAYSIZE(filter));
-		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-		ImGui::SliderFloat("##IconSizeSlider", &iconSize, 60, 360);
-		ImGui::PopItemWidth();
-		// TODO: Add option to select different image types (thumbnail/banner)
-		ImGui::BeginChild("##GameGrid", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		RenderGameGrid({ iconSize, (float)(iconSize * 1.5) }, filter);
-		ImGui::EndChild();
+		if (ImGui::Begin("Game Browser", false))
+		{
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 180);
+			ImGui::InputTextWithHint("##Input", "Search", filter, IM_ARRAYSIZE(filter));
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::SliderFloat("##IconSizeSlider", &iconSize, 60, 360);
+			ImGui::PopItemWidth();
+			// TODO: Add option to select different image types (thumbnail/banner)
+			ImGui::BeginChild("##GameGrid", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+			RenderGameGrid({ iconSize, (float)(iconSize * 1.5) }, filter);
+			ImGui::EndChild();
+		}
 		ImGui::End();
 
-		ImGui::Begin("Game Info");
 		RenderGameInfo();
-		ImGui::End();
 
 		ImGui::ShowDemoWindow();
 	}
@@ -181,8 +220,7 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	spec.Name = "Game Manager";
 	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;
-	spec.IconPath = "GameManager-Icon.ico";
-
+	spec.IconPath = filesystem::path("Icon.png");
 
 	Walnut::Application* app = new Walnut::Application(spec);
 	std::shared_ptr<MainLayer> mainLayer = std::make_shared<MainLayer>();

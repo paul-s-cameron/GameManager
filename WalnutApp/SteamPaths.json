@@ -70,7 +70,7 @@
             "MountedConfig": {
                 "language": "english"
             },
-            "ScheduledAutoUpdate": "1691273104",
+            "ScheduledAutoUpdate": "1691530539",
             "SharedDepots": {
                 "228988": "228980",
                 "228990": "228980"
@@ -206,8 +206,8 @@
             "AutoUpdateBehavior": "0",
             "BytesDownloaded": "0",
             "BytesStaged": "0",
-            "BytesToDownload": "282112080",
-            "BytesToStage": "283619668",
+            "BytesToDownload": "0",
+            "BytesToStage": "0",
             "InstallScripts": {
                 "228981": "_CommonRedist\\\\vcredist\\\\2005\\\\installscript.vdf",
                 "228982": "_CommonRedist\\\\vcredist\\\\2008\\\\installscript.vdf",
@@ -220,15 +220,12 @@
                 "228989": "_CommonRedist\\\\vcredist\\\\2022\\\\installscript.vdf",
                 "228990": "_CommonRedist\\\\DirectX\\\\Jun2010\\\\installscript.vdf",
                 "229000": "_CommonRedist\\\\DotNet\\\\3.5\\\\installscript.vdf",
-                "229001": "_CommonRedist\\\\DotNet\\\\3.5 Client Profile\\\\installscript.vdf",
                 "229002": "_CommonRedist\\\\DotNet\\\\4.0\\\\installscript.vdf",
                 "229003": "_CommonRedist\\\\DotNet\\\\4.0 Client Profile\\\\installscript.vdf",
                 "229004": "_CommonRedist\\\\DotNet\\\\4.5.2\\\\installscript.vdf",
                 "229005": "_CommonRedist\\\\DotNet\\\\4.6\\\\installscript.vdf",
                 "229006": "_CommonRedist\\\\DotNet\\\\4.7\\\\installscript.vdf",
                 "229007": "_CommonRedist\\\\DotNet\\\\4.8\\\\installscript.vdf",
-                "229010": "_CommonRedist\\\\XNA\\\\3.0\\\\installscript.vdf",
-                "229011": "_CommonRedist\\\\XNA\\\\3.1\\\\installscript.vdf",
                 "229012": "_CommonRedist\\\\XNA\\\\4.0\\\\installscript.vdf",
                 "229020": "_CommonRedist\\\\OpenAL\\\\2.0.7.0\\\\installscript.vdf",
                 "229030": "_CommonRedist\\\\PhysX\\\\8.09.04\\\\installscript.vdf",
@@ -281,10 +278,6 @@
                     "manifest": "4622705914179893434",
                     "size": "242743889"
                 },
-                "229001": {
-                    "manifest": "4049573910112143457",
-                    "size": "267964564"
-                },
                 "229002": {
                     "manifest": "7260605429366465749",
                     "size": "50450161"
@@ -308,14 +301,6 @@
                 "229007": {
                     "manifest": "4477590687906973371",
                     "size": "117381405"
-                },
-                "229010": {
-                    "manifest": "3476809898398882586",
-                    "size": "7982688"
-                },
-                "229011": {
-                    "manifest": "392351049714934122",
-                    "size": "7672416"
                 },
                 "229012": {
                     "manifest": "4353723233161159493",
@@ -348,8 +333,8 @@
             "MountedConfig": {
                 "BetaKey": "public"
             },
-            "ScheduledAutoUpdate": "1691575140",
-            "SizeOnDisk": "1433803015",
+            "ScheduledAutoUpdate": "0",
+            "SizeOnDisk": "1150183347",
             "StagingSize": "0",
             "StateFlags": "4",
             "TargetBuildID": "11255752",
@@ -633,6 +618,10 @@
         "DayZ": {
             "AllowOtherDownloadsWhileRunning": "0",
             "AutoUpdateBehavior": "2",
+            "BytesDownloaded": "0",
+            "BytesStaged": "0",
+            "BytesToDownload": "0",
+            "BytesToStage": "0",
             "InstallScripts": {
                 "221101": "installscript.vdf"
             },
@@ -659,6 +648,8 @@
             "SizeOnDisk": "20201608840",
             "StagingSize": "0",
             "StateFlags": "4",
+            "TargetBuildID": "0",
+            "UpdateResult": "0",
             "UserConfig": {
                 "language": "english"
             },
@@ -4751,7 +4742,7 @@
             "ScheduledAutoUpdate": "0",
             "SizeOnDisk": "12753874224",
             "StagingSize": "0",
-            "StateFlags": "4",
+            "StateFlags": "6",
             "TargetBuildID": "11097438",
             "UpdateResult": "0",
             "UserConfig": {
@@ -4784,9 +4775,6 @@
                 "language": "english"
             },
             "ScheduledAutoUpdate": "0",
-            "SharedDepots": {
-                "621": "620"
-            },
             "SizeOnDisk": "119278071",
             "StagingSize": "0",
             "StateFlags": "4",

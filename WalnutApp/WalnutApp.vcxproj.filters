@@ -2,20 +2,35 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\WalnutApp.cpp" />
-    <ClCompile Include="Steam.cpp">
+    <ClCompile Include="src\includes\Steam\Steam.cpp">
       <Filter>Steam</Filter>
+    </ClCompile>
+    <ClCompile Include="src\includes\utils.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="json.hpp">
-      <Filter>hpp</Filter>
+    <ClInclude Include="thumbnail.h">
+      <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Steam.h">
+    <ClInclude Include="src\includes\Steam\Steam.h">
       <Filter>Steam</Filter>
     </ClInclude>
-    <ClInclude Include="utils.hpp" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="thumbnail.h" />
+    <ClInclude Include="src\includes\globals.h">
+      <Filter>hpp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\json.hpp">
+      <Filter>hpp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\ManifestParser.hpp">
+      <Filter>hpp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\thumbnail.h">
+      <Filter>hpp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="hpp">
@@ -24,10 +39,17 @@
     <Filter Include="Steam">
       <UniqueIdentifier>{ae881d62-d530-420a-b3ae-194ce9655062}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{2f9c3ec3-cee4-4dfb-985c-e969e5d49a28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{afb647c0-eb12-444a-9f95-b0e13326e993}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="GameManager-Icon.ico" />
-    <Image Include="GameManager-Icon.png" />
+    <Image Include="GameManager-Icon.ico">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WalnutApp.rc" />
