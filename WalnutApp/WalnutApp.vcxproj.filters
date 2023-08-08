@@ -2,12 +2,28 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\WalnutApp.cpp" />
-    <ClCompile Include="Steam.cpp" />
+    <ClCompile Include="Steam.cpp">
+      <Filter>Steam</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="json.hpp" />
-    <ClInclude Include="Steam.h" />
-    <ClInclude Include="ManifestParser.hpp" />
-    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="json.hpp">
+      <Filter>hpp</Filter>
+    </ClInclude>
+    <ClInclude Include="ManifestParser.hpp">
+      <Filter>hpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Steam.h">
+      <Filter>Steam</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="hpp">
+      <UniqueIdentifier>{fe5df8a8-540a-434f-a8c5-cafdbb2972c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Steam">
+      <UniqueIdentifier>{ae881d62-d530-420a-b3ae-194ce9655062}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

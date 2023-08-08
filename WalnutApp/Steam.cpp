@@ -1,5 +1,4 @@
-#include <filesystem>
-#include "includes.h"
+#pragma once
 #include "Steam.h"
 
 using namespace std;
@@ -50,5 +49,11 @@ namespace Steam
 				}
 			}
 		}
+	}
+
+	void RunGame(string appid)
+	{
+		string command = "\"" + steam_path + "\" -applaunch " + appid;
+		system(command.c_str());
 	}
 }

@@ -156,8 +156,8 @@
   <ItemGroup>
     <ClInclude Include="json.hpp" />
     <ClInclude Include="ManifestParser.hpp" />
-    <ClInclude Include="stb_image.h" />
     <ClInclude Include="Steam.h" />
+    <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

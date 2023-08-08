@@ -1,9 +1,17 @@
-#include "../includes.h"
+#pragma once
+#include "Walnut/Application.h"
+#include "Walnut/EntryPoint.h"
+
+#include "Walnut/Image.h"
+#include "Walnut/UI/UI.h"
+
+#include "../Steam.h"
+#include "../json.hpp"
+#include "../utils.hpp"
 
 using namespace std;
-using namespace Steam;
 using namespace utils;
-using namespace m_parser;
+using namespace Steam;
 using json = nlohmann::json;
 
 void RenderGameGrid(ImVec2 buttonSize)
@@ -21,11 +29,13 @@ void RenderGameGrid(ImVec2 buttonSize)
 
 		if (game_images.count(manifest["name"]) > 0)
 		{
-			ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0);
+			if (ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0))
+				RunGame(manifest["appid"]);
 		}
 		else
 		{
-			ImGui::Button(SplitTextWithNewlines(game, buttonSize.x).c_str(), buttonSize);
+			if (ImGui::Button(SplitTextWithNewlines(game, buttonSize.x).c_str(), buttonSize))
+				RunGame(manifest["appid"]);
 		}
 
 		row++;
@@ -37,19 +47,15 @@ class MainLayer : public Walnut::Layer
 public:
 	virtual void OnAttach() override
 	{
+		// Setup
+		steam_path = "C:\\Program Files (x86)\\Steam\\steam.exe";
+
+		// GUI setup
 		ImGui::GetStyle().FrameRounding = 0.0f;
 	}
 
 	virtual void OnUIRender() override
 	{
-		ImGui::Begin("Add game path");
-		ImGui::InputText("Path", path, IM_ARRAYSIZE(path));
-		if (ImGui::Button("Add")) {
-			DetectInstalls(cleansePath(path));
-			memset(path, 0, IM_ARRAYSIZE(path));
-		}
-		ImGui::End();
-
 		ImGui::Begin("Game Browser");
 		RenderGameGrid({ 120, 180 });
 		ImGui::End();
@@ -77,9 +83,9 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Exit"))
+			if (ImGui::MenuItem("Add Game Folder"))
 			{
-				app->Close();
+				DetectInstalls(cleansePath(BrowseFolder()));
 			}
 			ImGui::EndMenu();
 		}

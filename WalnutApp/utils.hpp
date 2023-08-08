@@ -1,31 +1,22 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include "includes.h"
+#include <unordered_map>
+#include <Windows.h>
+#include <shlobj.h>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
+#include "json.hpp"
+
+using namespace std;
+using namespace Steam;
+namespace fs = filesystem;
 using json = nlohmann::json;
 
 namespace utils
 {
-	void OpenFileWithImGuiFileDialog(std::string& selectedFilePath)
-	{
-		OPENFILENAME ofn;
-		char fileName[MAX_PATH] = "";
-
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = NULL;
-		ofn.lpstrFilter = (LPCWSTR)"All Files (*.*)\0*.*\0";
-		ofn.lpstrFile = (LPWSTR)fileName;
-		ofn.nMaxFile = MAX_PATH;
-		ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-
-		if (GetOpenFileName(&ofn))
-		{
-			selectedFilePath = fileName;
-		}
-	}
-
 	string cleansePath(const string& path)
 	{
 		string output = path;
@@ -74,5 +65,57 @@ namespace utils
 
 		return result;
 	}
+
+	// Windows folder dialog
+	string BrowseFolder()
+	{
+		std::wstring folderPath;
+
+		// Initialize COM for the Windows API functions
+		CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+		// Create an instance of the File Open Dialog
+		IFileDialog* pFileDialog;
+		HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFileDialog));
+
+		if (SUCCEEDED(hr))
+		{
+			// Set options for the dialog
+			DWORD dwOptions;
+			pFileDialog->GetOptions(&dwOptions);
+			pFileDialog->SetOptions(dwOptions | FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM);
+
+			// Show the dialog
+			hr = pFileDialog->Show(NULL);
+
+			if (SUCCEEDED(hr))
+			{
+				IShellItem* pItem;
+				hr = pFileDialog->GetResult(&pItem);
+
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFolderPath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFolderPath);
+
+					if (SUCCEEDED(hr))
+					{
+						folderPath = pszFolderPath;
+						CoTaskMemFree(pszFolderPath);
+					}
+
+					pItem->Release();
+				}
+			}
+
+			pFileDialog->Release();
+		}
+
+		// Uninitialize COM
+		CoUninitialize();
+
+		return std::string(folderPath.begin(), folderPath.end());
+	}
 }
+
 #endif // UTILS_HPP

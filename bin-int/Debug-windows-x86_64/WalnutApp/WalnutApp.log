@@ -1,4 +1,2 @@
-﻿  WalnutApp.cpp
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\WalnutApp.cpp(75,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\WalnutApp.cpp(76,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+﻿  Steam.cpp
   WalnutApp.vcxproj -> E:\Coding\C++\Applications\GameManager\bin\Debug-windows-x86_64\WalnutApp\WalnutApp.exe
