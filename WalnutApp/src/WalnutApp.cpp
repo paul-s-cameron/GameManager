@@ -30,37 +30,42 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 	float scale = buttonSize.x / 120;
 	font->Scale = scale;
 
-	ImGui::SetCurrentFont(font);
-
-	int row = 0;
-	for (const auto& [game, manifest] : registered_games.items()) {
-		string name_lowered = game;
-		string filter_lowered = filter;
-		transform(name_lowered.begin(), name_lowered.end(), name_lowered.begin(), ::tolower);
-		transform(filter_lowered.begin(), filter_lowered.end(), filter_lowered.begin(), ::tolower);
-
-		if (strcmp(filter, "") != 0 && name_lowered.find(filter_lowered) == string::npos)
+	for (const auto& [drive, _] : registered_games.items())
+	{
+		string title = drive + " (" + to_string(registered_games[drive].size()) + ")";
+		if (!ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			continue;
 
-		if (row != 0 && row % buttonsPerRow != 0)
-			ImGui::SameLine(0, padding);
+		ImGui::SetCurrentFont(font);
+		int row = 0;
+		for (const auto& [game, manifest] : registered_games[drive].items()) {
+			string name_lowered = game;
+			string filter_lowered = filter;
+			transform(name_lowered.begin(), name_lowered.end(), name_lowered.begin(), ::tolower);
+			transform(filter_lowered.begin(), filter_lowered.end(), filter_lowered.begin(), ::tolower);
 
-		if (game_images.count(manifest["name"]) > 0)
-		{
-			if (ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0))
-				selected_game = manifest;
-		}
-		else
-		{
-			if (ButtonCenter(game.c_str(), buttonSize))
-				selected_game = manifest;
-		}
+			if (strcmp(filter, "") != 0 && name_lowered.find(filter_lowered) == string::npos)
+				continue;
 
-		row++;
+			if (row != 0 && row % buttonsPerRow != 0)
+				ImGui::SameLine(0, padding);
+
+			if (game_images.count(manifest["name"]) > 0)
+			{
+				if (ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0))
+					selected_game = manifest;
+			}
+			else
+			{
+				if (ButtonCenter(game.c_str(), buttonSize))
+					selected_game = manifest;
+			}
+
+			row++;
+		}
+		font->Scale = originalFontSize;
+		ImGui::SetCurrentFont(font);
 	}
-
-	font->Scale = originalFontSize;
-	ImGui::SetCurrentFont(font);
 }
 
 void RenderGameInfo()
@@ -142,9 +147,8 @@ public:
 		ImGui::SliderFloat("##IconSizeSlider", &iconSize, 60, 360);
 		ImGui::PopItemWidth();
 		// TODO: Add option to select different image types (thumbnail/banner)
-		ImVec2 buttonSize = { iconSize, (float)(iconSize * 1.5) };
 		ImGui::BeginChild("##GameGrid", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		RenderGameGrid(buttonSize, filter);
+		RenderGameGrid({ iconSize, (float)(iconSize * 1.5) }, filter);
 		ImGui::EndChild();
 		ImGui::End();
 
@@ -189,8 +193,12 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 		{
 			if (ImGui::MenuItem("Add Game Folder"))
 			{
-				DetectInstalls(cleansePath(BrowseFolder()));
-				LoadGameIcons();
+				string path = BrowseFolder();
+				if (!path.empty())
+				{
+					DetectInstalls(cleansePath(path));
+					LoadGameIcons();
+				}
 			}
 			ImGui::EndMenu();
 		}
