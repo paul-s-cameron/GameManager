@@ -52,10 +52,8 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 		}
 		else
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
-			if (ImGui::Button(SplitTextWithNewlines(game, buttonSize.x).c_str(), buttonSize))
+			if (ButtonCenter(game.c_str(), buttonSize))
 				selected_game = manifest;
-			ImGui::PopStyleVar();
 		}
 
 		row++;
