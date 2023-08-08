@@ -19,9 +19,18 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 {
 	if (registered_games.empty() || game_images.empty())
 		return;
+
 	int buttonsPerRow = static_cast<int>(ImGui::GetContentRegionAvail().x / (buttonSize.x + 8));
-	int remainingWidth = ImGui::GetContentRegionAvail().x - (buttonsPerRow * buttonSize.x + 8);
+	if (buttonsPerRow < 2) return;
+	int remainingWidth = ImGui::GetContentRegionAvail().x - (buttonsPerRow * buttonSize.x);
 	float padding = remainingWidth / (buttonsPerRow - 1);
+
+	ImFont* font = ImGui::GetFont();
+	float originalFontSize = font->Scale;
+	float scale = buttonSize.x / 120;
+	font->Scale = scale;
+
+	ImGui::SetCurrentFont(font);
 
 	int row = 0;
 	for (const auto& [game, manifest] : registered_games.items()) {
@@ -43,12 +52,17 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 		}
 		else
 		{
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
 			if (ImGui::Button(SplitTextWithNewlines(game, buttonSize.x).c_str(), buttonSize))
 				selected_game = manifest;
+			ImGui::PopStyleVar();
 		}
 
 		row++;
 	}
+
+	font->Scale = originalFontSize;
+	ImGui::SetCurrentFont(font);
 }
 
 void RenderGameInfo()
@@ -76,6 +90,13 @@ void RenderGameInfo()
 
 	ImGui::Separator();
 
+	float buttonWidth = ImGui::GetContentRegionAvail().x / 2 - 5;
+	if (ImGui::Button("Play", { buttonWidth, 50 }))
+		RunGame(selected_game["appid"]);
+	ImGui::SameLine(0, 5);
+	if (ImGui::Button("Uninstall", { buttonWidth, 50 }))
+		//UninstallGame(selected_game["appid"]);
+
 	if (ImGui::TreeNode("Manifest"))
 	{
 		DisplayJSON(selected_game);
@@ -89,6 +110,12 @@ public:
 	virtual void OnAttach() override
 	{
 		// Setup
+		//GLFWimage icon;
+		//int channels;
+		//std::string iconPathStr = "E:\\Coding\\C++\\Applications\\GameManager\\WalnutApp\\GameManager-Icon.ico";
+		//icon.pixels = stbi_load(iconPathStr.c_str(), &icon.width, &icon.height, &channels, 4);
+		//cout << icon.width << endl;
+
 		uint32_t width = 600;
 		uint32_t height = 900;
 		void* thum_ptr = Walnut::Image::Decode(_thumbnail, sizeof(_thumbnail), width, height);
@@ -111,14 +138,16 @@ public:
 	{
 		ImGui::Begin("Game Browser");
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 180);
-		ImGui::InputText("##Input", filter, 256);
+		ImGui::InputTextWithHint("##Input", "Search", filter, IM_ARRAYSIZE(filter));
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-		ImGui::SliderFloat("##IconSizeSlider", &iconSize, 90, 360);
+		ImGui::SliderFloat("##IconSizeSlider", &iconSize, 60, 360);
 		ImGui::PopItemWidth();
 		// TODO: Add option to select different image types (thumbnail/banner)
 		ImVec2 buttonSize = { iconSize, (float)(iconSize * 1.5) };
+		ImGui::BeginChild("##GameGrid", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		RenderGameGrid(buttonSize, filter);
+		ImGui::EndChild();
 		ImGui::End();
 
 		ImGui::Begin("Game Info");
@@ -150,7 +179,7 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	spec.Name = "Game Manager";
 	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;
-	spec.IconPath = (filesystem::path)"E:\\Coding\\C++\\Applications\\GameManager\\WalnutApp\\GameManager-Icon.ico";
+	spec.IconPath = "GameManager-Icon.ico";
 
 
 	Walnut::Application* app = new Walnut::Application(spec);

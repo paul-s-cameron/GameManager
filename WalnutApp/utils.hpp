@@ -89,7 +89,7 @@ namespace utils
 		std::wstring folderPath;
 
 		// Initialize COM for the Windows API functions
-		CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		(void)CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 		// Create an instance of the File Open Dialog
 		IFileDialog* pFileDialog;
