@@ -1,8 +1,6 @@
 #pragma once
 
-#include "json.hpp"
-#include "Walnut/Image.h"
-#include "ManifestParser.hpp"
+#include "includes.h"
 
 using namespace std;
 using json = nlohmann::json;

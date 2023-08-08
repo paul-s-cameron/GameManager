@@ -1,9 +1,5 @@
 #include <filesystem>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <list>
-
+#include "includes.h"
 #include "Steam.h"
 
 using namespace std;
