@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "json.hpp"
+#include "thumbnail.h"
 
 using namespace std;
 using namespace Steam;
@@ -17,6 +18,22 @@ using json = nlohmann::json;
 
 namespace utils
 {
+	inline shared_ptr<Walnut::Image> default_thumbnail;
+
+	void DisplayJSON(const json& jsonData) {
+		for (auto it = jsonData.begin(); it != jsonData.end(); ++it) {
+			if (it->is_object() || it->is_array()) {
+				if (ImGui::TreeNode(it.key().c_str())) {
+					DisplayJSON(*it);
+					ImGui::TreePop();
+				}
+			}
+			else {
+				ImGui::Text("%s: %s", it.key().c_str(), it->dump().c_str());
+			}
+		}
+	}
+
 	string cleansePath(const string& path)
 	{
 		string output = path;

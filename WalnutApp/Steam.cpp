@@ -33,20 +33,18 @@ namespace Steam
 						continue;
 
 					registered_games[manifestData["name"]] = manifestData;
-
-					// Find games images
-					string library_cache = "C:\\Program Files (x86)\\Steam\\appcache\\librarycache\\";
-					string thumbnail_path = library_cache + (string)manifestData["appid"] + "_library_600x900.jpg";
-					if (fs::exists(thumbnail_path)) {
-						cout << "Found image for " << manifestData["name"] << endl;
-						game_images[manifestData["name"]] = make_shared<Walnut::Image>(thumbnail_path);
-					}
-					else {
-						cout << "No image for " << manifestData["name"] << endl;
-					}
-
-					cout << "Added " << manifestData["name"] << " to registered_games with appid: " << manifestData["appid"] << endl;
 				}
+			}
+		}
+	}
+
+	void LoadGameIcons()
+	{
+		for (const auto& [game, manifest] : registered_games.items()) {
+			string library_cache = "C:\\Program Files (x86)\\Steam\\appcache\\librarycache\\";
+			string thumbnail_path = library_cache + (string)manifest["appid"] + "_library_600x900.jpg";
+			if (fs::exists(thumbnail_path)) {
+				game_images[manifest["name"]] = make_shared<Walnut::Image>(thumbnail_path);
 			}
 		}
 	}

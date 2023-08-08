@@ -10,13 +10,12 @@
     <ClInclude Include="json.hpp">
       <Filter>hpp</Filter>
     </ClInclude>
-    <ClInclude Include="ManifestParser.hpp">
-      <Filter>hpp</Filter>
-    </ClInclude>
     <ClInclude Include="Steam.h">
       <Filter>Steam</Filter>
     </ClInclude>
     <ClInclude Include="utils.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="thumbnail.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="hpp">
@@ -25,5 +24,12 @@
     <Filter Include="Steam">
       <UniqueIdentifier>{ae881d62-d530-420a-b3ae-194ce9655062}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="GameManager-Icon.ico" />
+    <Image Include="GameManager-Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="WalnutApp.rc" />
   </ItemGroup>
 </Project>
