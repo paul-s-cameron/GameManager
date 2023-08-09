@@ -80,7 +80,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WL_PLATFORM_WINDOWS;WL_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\vendor\imgui;..\vendor\glfw\include;..\Walnut\Source;..\Walnut\Platform\GUI;C:\VulkanSDK\1.3.250.1\Include;..\WalnutApp\images;..\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Coding\C++\Applications\GameManager\WalnutApp\steamworks_sdk_157\sdk;..\vendor\imgui;..\vendor\glfw\include;..\Walnut\Source;..\Walnut\Platform\GUI;C:\VulkanSDK\1.3.250.1\Include;..\WalnutApp\images;..\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>

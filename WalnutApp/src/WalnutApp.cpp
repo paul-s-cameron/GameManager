@@ -71,12 +71,12 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 				else
 					dim = 1;
 				if (ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0, {0, 0, 0, 0}, {1, 1, 1, dim}))
-					selected_game = manifest;
+					SelectGame(drive, manifest["name"]);
 			}
 			else
 			{
 				if (ButtonCenter(game.c_str(), buttonSize))
-					selected_game = manifest;
+					SelectGame(drive, manifest["name"]);
 			}
 			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
 				ImGui::OpenPopup(string(manifest["appid"]).c_str());
@@ -99,52 +99,84 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 	}
 }
 
-void RenderGameInfo()
+class GameInfoWindow
 {
-	if (ImGui::Begin("Game Info", false, ImGuiWindowFlags_NoScrollbar))
+public:
+	GameInfoWindow() = default;
+
+	void Render(bool header)
 	{
-		if (!selected_game.empty())
+		if (ImGui::Begin("Game Info", false, ImGuiWindowFlags_NoScrollbar))
 		{
-			// Get game icon
-			ImVec2 iconSize = { 120, 190 };
-			shared_ptr<Walnut::Image> game_icon;
-			if (game_images.count(selected_game["name"]) != 0)
+			if (!selected_game.empty())
 			{
-				game_icon = game_images[selected_game["name"]];
-			}
-			else
-			{
-				game_icon = default_thumbnail;
-			}
+				// Get game icon
+				ImVec2 iconSize = { 120, 190 };
+				if (header)
+					iconSize = { 406, 190 };
+				shared_ptr<Walnut::Image> game_icon;
+				if (game_images.count(selected_game["name"]) != 0)
+				{
+					game_icon = game_images[selected_game["name"]];
+				}
+				else
+				{
+					game_icon = default_thumbnail;
+				}
 
-			// Render game icon at center
-			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (iconSize.x / 2));
-			ImGui::Image(game_icon.get()->GetDescriptorSet(), iconSize);
-			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (ImGui::CalcTextSize(string(selected_game["name"]).c_str()).x / 2));
-			ImGui::Text(string(selected_game["name"]).c_str());
+				// Render game icon at center
+				ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (iconSize.x / 2));
+				ImGui::Image(game_icon.get()->GetDescriptorSet(), iconSize);
+				ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (ImGui::CalcTextSize(string(selected_game["name"]).c_str()).x / 2));
+				ImGui::Text(string(selected_game["name"]).c_str());
 
-			ImGui::Separator();
+				ImGui::Separator();
 
-			float buttonWidth = ImGui::GetContentRegionAvail().x / 2 - 5;
-			if (ImGui::Button("Play", { buttonWidth, 50 }))
-				RunGame(selected_game["appid"]);
+				float buttonWidth = ImGui::GetContentRegionAvail().x / 2 - 5;
+				if (ImGui::Button("Play", { buttonWidth, 50 }))
+					RunGame(selected_game["appid"]);
 
-			ImGui::SameLine(0, 5);
+				ImGui::SameLine(0, 5);
 
-			if (ImGui::Button("SteamDB", { buttonWidth, 50 }))
-			{
-				OpenSteamDB(selected_game["appid"]);
-			}
+				if (ImGui::Button("SteamDB", { buttonWidth, 50 }))
+				{
+					OpenSteamDB(selected_game["appid"]);
+				}
 
-			if (ImGui::TreeNode("Manifest"))
-			{
-				DisplayJSON(selected_game);
-				ImGui::TreePop();
+				string currentAccountName = string(user_data[selected_game["selected_account"]]["friends"]["PersonaName"]);
+				// Get index of current account
+				account = find(account_ids.begin(), account_ids.end(), selected_game["selected_account"]) - account_ids.begin();
+				ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(currentAccountName.c_str()).x);
+				if (ImGui::BeginCombo(currentAccountName.c_str(), string(account_ids[account]).c_str()))
+				{
+					for (int i = 0; i < account_ids.size(); i++)
+					{
+						bool is_selected = (account == i);
+						if (ImGui::Selectable(string(account_ids[i]).c_str(), is_selected))
+						{
+							account = i;
+							selected_game["selected_account"] = account_ids[i];
+							registered_games[selected_game["drive"]][selected_game["name"]]["selected_account"] = selected_game["selected_account"];
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+				ImGui::PopItemWidth();
+
+				if (ImGui::TreeNode("Manifest"))
+				{
+					DisplayJSON(selected_game);
+					ImGui::TreePop();
+				}
 			}
 		}
+		ImGui::End();
 	}
-	ImGui::End();
-}
+private:
+	int account = 0;
+};
 
 class MainLayer : public Walnut::Layer
 {
@@ -176,6 +208,14 @@ public:
 				LoadGameIcons();
 			}
 		}
+		LoadUserData();
+
+		// Initialize SteamAPI
+		if (SteamAPI_Init())
+		{
+			active_account = SteamUser()->GetSteamID();
+			cout << active_account.ConvertToUint64() << endl;
+		}
 
 		// GUI setup
 		ImGui::GetStyle().FrameRounding = 0.0f;
@@ -185,27 +225,45 @@ public:
 	{
 		if (ImGui::Begin("Game Browser", false))
 		{
-			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 180);
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 270);
 			ImGui::InputTextWithHint("##Input", "Search", filter, IM_ARRAYSIZE(filter));
 			ImGui::SameLine();
-			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 120);
 			ImGui::SliderInt("##IconSizeSlider", &iconSize, 60, 360);
+			ImGui::SameLine();
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 10);
+			if (ImGui::Checkbox("Landscape", &header))
+			{
+				if (!header) {
+					image_suffix = "_library_600x900.jpg";
+				}
+				else
+				{
+					image_suffix = "_header.jpg";
+				}
+				LoadGameIcons();
+			}
+			if (!header)
+				buttonSize = { (float)iconSize, (float)(iconSize * 1.5) };
+			else
+				buttonSize = { (float)(iconSize * 2.139), (float)iconSize };
 			ImGui::PopItemWidth();
 			// TODO: Add option to select different image types (thumbnail/banner)
 			ImGui::BeginChild("##GameGrid", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-			ImGui::InputText("##Test", message, IM_ARRAYSIZE(message));
-			RenderGameGrid({ (float)iconSize, (float)(iconSize * 1.5) }, filter);
+			RenderGameGrid(buttonSize, filter);
 			ImGui::EndChild();
 		}
 		ImGui::End();
 
-		RenderGameInfo();
+		gameInfoWindow.Render(header);
 
 		//ImGui::ShowDemoWindow();
 	}
 
 	virtual void OnDetach() override
 	{
+		SteamAPI_Shutdown();
+
 		// Add steam path to registered games
 		registered_games["steam_path"] = steam_path;
 
@@ -218,6 +276,10 @@ public:
 		default_thumbnail.reset();
 	}
 private:
+	GameInfoWindow gameInfoWindow;
+	ImVec2 buttonSize = { (float)iconSize, (float)iconSize };
+
+	bool header = false;
 	int iconSize = 120;
 	char path[256];
 	char filter[256];
@@ -244,9 +306,6 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 				{
 					DetectInstalls(cleansePath(path));
 					LoadGameIcons();
-					int size = registered_games.size();
-					string m = "Added " + to_string(size) + " games.";
-					strcpy(message, m.c_str());
 				}
 			}
 			ImGui::EndMenu();

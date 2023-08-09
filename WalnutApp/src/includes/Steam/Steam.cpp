@@ -10,6 +10,7 @@
 
 #include "Steam.h"
 #include "../utils.h"
+#include "../globals.h"
 #include "../ManifestParser.hpp"
 
 using namespace std;
@@ -25,11 +26,9 @@ namespace Steam
 	{
 		string libraryfolders_path = path + "\\libraryfolders.vdf";
 		if (!fs::exists(libraryfolders_path)) {
-			strcpy(message, "libraryfolders.vdf not found");
 			LoadFromAcf(path);
 			return;
 		}
-		strcpy(message, "libraryfolders.vdf found");
 
 		// Get drive letter from path
 		string drive_letter = path.substr(0, 2);
@@ -70,10 +69,7 @@ namespace Steam
 		cout << drive_letter << endl;
 
 		if (!fs::exists(path))
-		{
-			strcpy(message, (string("Path does not exist: ") + path).c_str());
 			return;
-		}
 
 		for (const auto& entry : fs::directory_iterator(path)) {
 			if (fs::is_regular_file(entry)) {
@@ -101,8 +97,6 @@ namespace Steam
 
 					//registered_games[manifestData["name"]] = manifestData;
 					registered_games[drive_letter][manifestData["name"]] = manifestData;
-
-					strcpy(message, "Game added");
 				}
 			}
 		}
@@ -113,11 +107,50 @@ namespace Steam
 		for (const auto& [drive, _] : registered_games.items()) {
 			for (const auto& [game, manifest] : registered_games[drive].items())
 			{
-				string thumbnail_path = steam_path + "\\appcache\\librarycache\\" + (string)manifest["appid"] + "_library_600x900.jpg";
+				string thumbnail_path = steam_path + "\\appcache\\librarycache\\" + (string)manifest["appid"] + image_suffix;
 				if (fs::exists(thumbnail_path)) {
 					game_images[manifest["name"]] = make_shared<Walnut::Image>(thumbnail_path);
-					strcpy(message, "Game icon loaded");
 				}
+				else if (game_images.find(manifest["name"]) != game_images.end())
+					game_images.erase(manifest["name"]);
+			}
+		}
+	}
+
+	void LoadUserData()
+	{
+		if (!fs::exists(steam_path + "\\userdata"))
+			return;
+		cout << "Loading user data..." << endl;
+
+		// Loop through each user and retrieve \\config\\localconfig.vdf
+		for (const auto& entry : fs::directory_iterator(steam_path + "\\userdata"))
+		{
+			if (fs::is_directory(entry)) {
+				string user_id = entry.path().filename().string();
+				string localconfig_path = entry.path().string() + "\\config\\localconfig.vdf";
+				if (!fs::exists(localconfig_path))
+					continue;
+				cout << "Found user " << user_id << endl;
+
+				// Read localconfig.vdf
+				ifstream localconfigFile(localconfig_path);
+				if (!localconfigFile.is_open())
+					continue;
+
+				// Read the entire file content into the buffer
+				std::stringstream buffer;
+				buffer << localconfigFile.rdbuf();
+
+				// Convert contents to json
+				istringstream inputStream(buffer.str());
+				json localconfigData = parseJson(inputStream);
+
+				localconfigData["apps"] = localconfigData["Software"]["Valve"]["steam"]["apps"];
+				localconfigData.erase("Software");
+
+				if (user_data.find(user_id) == user_data.end())
+					user_data[user_id] = localconfigData;
 			}
 		}
 	}
@@ -139,5 +172,24 @@ namespace Steam
 	{
 		string url = "https://steamdb.info/app/" + appid;
 		ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	}
+
+	void SelectGame(string drive, string game)
+	{
+		account_ids.clear();
+		selected_game = registered_games[drive][game];
+		selected_game["drive"] = drive;
+		selected_game["accounts"] = json::array();
+		for (const auto& [user, userData] : user_data.items())
+		{
+			if (userData["apps"].find(selected_game["appid"]) != userData["apps"].end())
+			{
+				cout << "Found account " << user << endl;
+				selected_game["accounts"].push_back(user);
+				if (selected_game.find("selected_account") == selected_game.end())
+					selected_game["selected_account"] = user;
+				account_ids.push_back(user);
+			}
+		}
 	}
 }
