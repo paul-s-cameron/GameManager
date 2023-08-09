@@ -28,6 +28,8 @@ namespace Walnut {
 
 		std::filesystem::path IconPath;
 
+		std::shared_ptr<Walnut::Image> window_icon;
+
 		bool WindowResizeable = true;
 
 		// Uses custom Walnut titlebar instead

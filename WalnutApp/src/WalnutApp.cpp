@@ -9,11 +9,13 @@
 #include <imgui.h>
 #include <fstream>
 
+#include <thumbnail.h>
 #include "includes/utils.h"
 #include "includes/json.hpp"
 #include "includes/globals.h"
-#include "includes/thumbnail.h"
 #include "includes/Steam/Steam.h"
+#include <GLFW/glfw3.h>
+#include "../../vendor/stb_image/stb_image.h"
 
 using namespace std;
 using namespace utils;
@@ -35,6 +37,7 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 	float originalFontSize = font->Scale;
 	float scale = buttonSize.x / 120;
 	font->Scale = scale;
+	float dim = 1;
 
 	for (const auto& [drive, _] : registered_games.items())
 	{
@@ -56,13 +59,18 @@ void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 
 			if (strcmp(filter, "") != 0 && name_lowered.find(filter_lowered) == string::npos)
 				continue;
-
 			if (row != 0 && row % buttonsPerRow != 0)
 				ImGui::SameLine(0, padding);
 
+			ImVec2 buttonPos = ImGui::GetCursorScreenPos();
+
 			if (game_images.count(manifest["name"]) > 0)
 			{
-				if (ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0))
+				if (ImGui::IsMouseHoveringRect(buttonPos, ImVec2(buttonPos.x + buttonSize.x, buttonPos.y + buttonSize.y)))
+					dim = 0.8;
+				else
+					dim = 1;
+				if (ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0, {0, 0, 0, 0}, {1, 1, 1, dim}))
 					selected_game = manifest;
 			}
 			else
@@ -146,14 +154,17 @@ public:
 		// Setup
 		//GLFWimage icon;
 		//int channels;
-		//std::string iconPathStr = "E:\\Coding\\C++\\Applications\\GameManager\\WalnutApp\\GameManager-Icon.ico";
+		//std::string iconPathStr = "E:\\Coding\\C++\\Applications\\GameManager\\WalnutApp\\Icon.png";
 		//icon.pixels = stbi_load(iconPathStr.c_str(), &icon.width, &icon.height, &channels, 4);
-		//cout << icon.width << endl;
+		//// get glfw window handle
 
-		uint32_t width = 600;
-		uint32_t height = 900;
-		void* thum_ptr = Walnut::Image::Decode(_thumbnail, sizeof(_thumbnail), width, height);
-		default_thumbnail = make_shared<Walnut::Image>(600, 900, Walnut::ImageFormat::RGBA, thum_ptr);
+		uint32_t width, height;
+		void* data = Walnut::Image::Decode(_thumbnail, sizeof(_thumbnail), width, height);
+		default_thumbnail = make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA, data);
+		free(data);
+
+		//glfwSetWindowIcon(m_WindowHandle, 1, &icon);
+		//stbi_image_free(icon.pixels)
 		steam_path = "C:\\Program Files (x86)\\Steam\\steam.exe";
 
 		// Check for saved path files
@@ -195,7 +206,7 @@ public:
 
 		RenderGameInfo();
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 	}
 
 	virtual void OnDetach() override
@@ -220,7 +231,6 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 	spec.Name = "Game Manager";
 	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;
-	spec.IconPath = filesystem::path("Icon.png");
 
 	Walnut::Application* app = new Walnut::Application(spec);
 	std::shared_ptr<MainLayer> mainLayer = std::make_shared<MainLayer>();

@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>E:\Coding\C++\Applications\GameManager\bin\Dist-windows-x86_64\WalnutApp\WalnutApp.exe</FullPath>
+      <FullPath>E:\Coding\C++\Applications\GameManager\dist\WalnutApp.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

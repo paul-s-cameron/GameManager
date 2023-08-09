@@ -1,28 +1,3 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (..\bin-int\Dist-windows-x86_64\WalnutApp\) contains files shared from another project (WalnutApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  Steam.cpp
-  WalnutApp.cpp
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\WalnutApp.cpp(23,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\WalnutApp.cpp(24,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xstring(2765,53): warning C4244: 'argument': conversion from 'wchar_t' to 'const _Elem', possible loss of data
-          with
-          [
-              _Elem=char
-          ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xstring(2621,17): message : see reference to function template instantiation 'void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct_from_iter<wchar_t*,wchar_t*,_Size_type>(_Iter,const _Sent,_Size)' being compiled
-          with
-          [
-              _Size_type=unsigned __int64,
-              _Iter=wchar_t *,
-              _Sent=wchar_t *,
-              _Size=unsigned __int64
-          ]
-E:\Coding\C++\Applications\GameManager\WalnutApp\utils.hpp(117,21): message : see reference to function template instantiation 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string<std::_String_iterator<std::_String_val<std::_Simple_types<_Elem>>>,0>(_Iter,_Iter,const _Alloc &)' being compiled
-          with
-          [
-              _Elem=wchar_t,
-              _Iter=std::_String_iterator<std::_String_val<std::_Simple_types<wchar_t>>>,
-              _Alloc=std::allocator<char>
-          ]
-E:\Coding\C++\Applications\GameManager\WalnutApp\utils.hpp(117,3): message : see the first reference to 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string' in 'utils::BrowseFolder'
-  Generating Code...
-  WalnutApp.vcxproj -> E:\Coding\C++\Applications\GameManager\bin\Dist-windows-x86_64\WalnutApp\WalnutApp.exe
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(516,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (..\bin-int\Dist-windows-x86_64\WalnutApp\) contains files shared from another project (WalnutApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  WalnutApp.vcxproj -> E:\Coding\C++\Applications\GameManager\dist\WalnutApp.exe

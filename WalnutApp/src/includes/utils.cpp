@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "utils.h"
-#include "thumbnail.h"
 
 using namespace std;
 using namespace ImGui;

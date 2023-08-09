@@ -30,6 +30,7 @@
 #include "ImGui/Roboto-Regular.embed"
 #include "ImGui/Roboto-Bold.embed"
 #include "ImGui/Roboto-Italic.embed"
+#include <window_icon.h>
 
 extern bool g_ApplicationRunning;
 
@@ -478,8 +479,11 @@ namespace Walnut {
 		int channels;
 		if (!m_Specification.IconPath.empty())
 		{
+			std::cout << "Loading icon" << std::endl;
 			std::string iconPathStr = m_Specification.IconPath.string();
+			std::cout << iconPathStr << std::endl;
 			icon.pixels = stbi_load(iconPathStr.c_str(), &icon.width, &icon.height, &channels, 4);
+			std::cout << icon.width << " " << icon.height << std::endl;
 			glfwSetWindowIcon(m_WindowHandle, 1, &icon);
 			stbi_image_free(icon.pixels);
 		}
@@ -600,7 +604,7 @@ namespace Walnut {
 		// Load images
 		{
 			uint32_t w, h;
-			void* data = Image::Decode(g_WalnutIcon, sizeof(g_WalnutIcon), w, h);
+			void* data = Image::Decode(_windowIcon, sizeof(_windowIcon), w, h);
 			m_AppHeaderIcon = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
 			free(data);
 		}
@@ -693,12 +697,24 @@ namespace Walnut {
 
 		// Logo
 		{
-			const int logoWidth = 48;// m_LogoTex->GetWidth();
-			const int logoHeight = 48;// m_LogoTex->GetHeight();
-			const ImVec2 logoOffset(16.0f + windowPadding.x, 5.0f + windowPadding.y + titlebarVerticalOffset);
-			const ImVec2 logoRectStart = { ImGui::GetItemRectMin().x + logoOffset.x, ImGui::GetItemRectMin().y + logoOffset.y };
-			const ImVec2 logoRectMax = { logoRectStart.x + logoWidth, logoRectStart.y + logoHeight };
-			fgDrawList->AddImage(m_AppHeaderIcon->GetDescriptorSet(), logoRectStart, logoRectMax);
+			//if (m_Specification.window_icon)
+			//{
+			//	const int logoWidth = 48;
+			//	const int logoHeight = 48;
+			//	const ImVec2 logoOffset(16.0f + windowPadding.x, 5.0f + windowPadding.y + titlebarVerticalOffset);
+			//	const ImVec2 logoRectStart = { ImGui::GetItemRectMin().x + logoOffset.x, ImGui::GetItemRectMin().y + logoOffset.y };
+			//	const ImVec2 logoRectMax = { logoRectStart.x + logoWidth, logoRectStart.y + logoHeight };
+			//	fgDrawList->AddImage(m_Specification.window_icon->GetDescriptorSet(), logoRectStart, logoRectMax);
+			//}
+			//else
+			//{
+			//	const int logoWidth = 48;// m_LogoTex->GetWidth();
+			//	const int logoHeight = 48;// m_LogoTex->GetHeight();
+			//	const ImVec2 logoOffset(16.0f + windowPadding.x, 5.0f + windowPadding.y + titlebarVerticalOffset);
+			//	const ImVec2 logoRectStart = { ImGui::GetItemRectMin().x + logoOffset.x, ImGui::GetItemRectMin().y + logoOffset.y };
+			//	const ImVec2 logoRectMax = { logoRectStart.x + logoWidth, logoRectStart.y + logoHeight };
+			//	fgDrawList->AddImage(m_AppHeaderIcon->GetDescriptorSet(), logoRectStart, logoRectMax);
+			//}
 		}
 
 		ImGui::BeginHorizontal("Titlebar", { ImGui::GetWindowWidth() - windowPadding.y * 2.0f, ImGui::GetFrameHeightWithSpacing() });
@@ -730,8 +746,8 @@ namespace Walnut {
 			ImGui::SuspendLayout();
 			{
 				ImGui::SetItemAllowOverlap();
-				const float logoHorizontalOffset = 16.0f * 2.0f + 48.0f + windowPadding.x;
-				ImGui::SetCursorPos(ImVec2(logoHorizontalOffset, 6.0f + titlebarVerticalOffset));
+				//const float logoHorizontalOffset = 16.0f * 2.0f + 48.0f + windowPadding.x;
+				ImGui::SetCursorPos(ImVec2(12.0f + titlebarVerticalOffset, 6.0f + titlebarVerticalOffset));
 				UI_DrawMenubar();
 
 				if (ImGui::IsItemHovered())

@@ -31,6 +31,9 @@
     <ClInclude Include="src\includes\utils.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\includes\window_icon.h">
+      <Filter>hpp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="hpp">
