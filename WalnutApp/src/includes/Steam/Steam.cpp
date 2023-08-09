@@ -70,7 +70,10 @@ namespace Steam
 		cout << drive_letter << endl;
 
 		if (!fs::exists(path))
+		{
+			strcpy(message, (string("Path does not exist: ") + path).c_str());
 			return;
+		}
 
 		for (const auto& entry : fs::directory_iterator(path)) {
 			if (fs::is_regular_file(entry)) {

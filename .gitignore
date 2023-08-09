@@ -1,4 +1,7 @@
 .vs/
+*.json
+bin/
+bin-int/
 
 # Prerequisites
 *.d
@@ -77,3 +80,4 @@ Scratchpad.txt
 Unix Worksheet.worksheet
 project.bbprojectdata
 Premake4.tmproj
+*.json
