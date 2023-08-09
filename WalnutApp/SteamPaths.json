@@ -433,6 +433,81 @@
             "name": "BeamNG.drive",
             "universe": "1"
         },
+        "Beat Saber": {
+            "AllowOtherDownloadsWhileRunning": "2",
+            "AutoUpdateBehavior": "2",
+            "BytesDownloaded": "0",
+            "BytesStaged": "0",
+            "BytesToDownload": "0",
+            "BytesToStage": "0",
+            "FullValidateAfterNextUpdate": "1",
+            "InstalledDepots": {
+                "1725500": {
+                    "dlcappid": "1725500",
+                    "manifest": "1947778187545218145",
+                    "size": "15050076"
+                },
+                "1725501": {
+                    "dlcappid": "1725501",
+                    "manifest": "2956298542551706839",
+                    "size": "12587612"
+                },
+                "1725502": {
+                    "dlcappid": "1725502",
+                    "manifest": "4156176949498818098",
+                    "size": "9954796"
+                },
+                "1725503": {
+                    "dlcappid": "1725503",
+                    "manifest": "4889872739105998892",
+                    "size": "18210122"
+                },
+                "1725504": {
+                    "dlcappid": "1725504",
+                    "manifest": "989618424800661702",
+                    "size": "16798891"
+                },
+                "1725505": {
+                    "dlcappid": "1725505",
+                    "manifest": "1674200555465002087",
+                    "size": "17199452"
+                },
+                "1725506": {
+                    "dlcappid": "1725506",
+                    "manifest": "6932698674025721775",
+                    "size": "15473404"
+                },
+                "1725507": {
+                    "dlcappid": "1725507",
+                    "manifest": "65273386481114180",
+                    "size": "20328813"
+                },
+                "620981": {
+                    "manifest": "676582354127623831",
+                    "size": "1657597110"
+                }
+            },
+            "LastOwner": "76561198413685399",
+            "LastUpdated": "1688236186",
+            "LauncherPath": "C:\\\\Program Files (x86)\\\\Steam\\\\steam.exe",
+            "MountedConfig": {
+                "language": "english"
+            },
+            "ScheduledAutoUpdate": "0",
+            "SizeOnDisk": "1783200276",
+            "StagingSize": "0",
+            "StateFlags": "6",
+            "TargetBuildID": "11489649",
+            "UpdateResult": "0",
+            "UserConfig": {
+                "language": "english"
+            },
+            "appid": "620980",
+            "buildid": "11489649",
+            "installdir": "Beat Saber",
+            "name": "Beat Saber",
+            "universe": "1"
+        },
         "Boundary": {
             "AllowOtherDownloadsWhileRunning": "0",
             "AutoUpdateBehavior": "2",
@@ -1205,6 +1280,48 @@
             "buildid": "6699762",
             "installdir": "Rising Storm 2",
             "name": "Rising Storm 2: Vietnam",
+            "universe": "1"
+        },
+        "Rocket League": {
+            "AllowOtherDownloadsWhileRunning": "0",
+            "AutoUpdateBehavior": "2",
+            "BytesDownloaded": "2122923120",
+            "BytesStaged": "18488228899",
+            "BytesToDownload": "2122923120",
+            "BytesToStage": "18488228899",
+            "InstallScripts": {
+                "252951": "appinfo.vdf"
+            },
+            "InstalledDepots": {
+                "252951": {
+                    "manifest": "6072429637954570918",
+                    "size": "26484304719"
+                }
+            },
+            "LastOwner": "76561198413685399",
+            "LastUpdated": "1690931585",
+            "LauncherPath": "C:\\\\Program Files (x86)\\\\Steam\\\\steam.exe",
+            "MountedConfig": {
+                "language": "english"
+            },
+            "ScheduledAutoUpdate": "0",
+            "SharedDepots": {
+                "228988": "228980",
+                "228990": "228980",
+                "229033": "228980"
+            },
+            "SizeOnDisk": "26484304719",
+            "StagingSize": "0",
+            "StateFlags": "4",
+            "TargetBuildID": "11832516",
+            "UpdateResult": "0",
+            "UserConfig": {
+                "language": "english"
+            },
+            "appid": "252950",
+            "buildid": "11832516",
+            "installdir": "rocketleague",
+            "name": "Rocket League",
             "universe": "1"
         },
         "Satisfactory": {
@@ -6717,5 +6834,6 @@
             "name": "hack_me 2",
             "universe": "1"
         }
-    }
+    },
+    "steam_path": "C:\\Program Files (x86)\\Steam"
 }

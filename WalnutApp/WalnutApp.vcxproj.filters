@@ -10,9 +10,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="thumbnail.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="src\includes\Steam\Steam.h">
       <Filter>Steam</Filter>
     </ClInclude>
@@ -48,11 +45,6 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{afb647c0-eb12-444a-9f95-b0e13326e993}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="GameManager-Icon.ico">
-      <Filter>Resources</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WalnutApp.rc" />

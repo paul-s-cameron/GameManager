@@ -25,7 +25,7 @@ using json = nlohmann::json;
 
 void RenderGameGrid(ImVec2 buttonSize, const char* filter)
 {
-	if (registered_games.empty() || game_images.empty())
+	if (registered_games.empty())
 		return;
 
 	int buttonsPerRow = static_cast<int>(ImGui::GetContentRegionAvail().x / (buttonSize.x + 8));
@@ -152,31 +152,25 @@ public:
 	virtual void OnAttach() override
 	{
 		// Setup
-		//GLFWimage icon;
-		//int channels;
-		//std::string iconPathStr = "E:\\Coding\\C++\\Applications\\GameManager\\WalnutApp\\Icon.png";
-		//icon.pixels = stbi_load(iconPathStr.c_str(), &icon.width, &icon.height, &channels, 4);
-		//// get glfw window handle
-
 		uint32_t width, height;
 		void* data = Walnut::Image::Decode(_thumbnail, sizeof(_thumbnail), width, height);
 		default_thumbnail = make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA, data);
 		free(data);
 
-		//glfwSetWindowIcon(m_WindowHandle, 1, &icon);
-		//stbi_image_free(icon.pixels)
-		steam_path = "C:\\Program Files (x86)\\Steam\\steam.exe";
+		steam_path = "C:\\Program Files (x86)\\Steam\\";
 
 		// Check for saved path files
 		if (fs::exists("SteamPaths.json"))
 		{
 			ifstream file("SteamPaths.json");
-			file >> registered_games;
+			registered_games = json::parse(file);
+			steam_path = registered_games["steam_path"];
+			registered_games.erase("steam_path");
 			LoadGameIcons();
 		}
 		else
 		{
-			string default_path = "C:\\Program Files (x86)\\Steam\\steamapps";
+			string default_path = steam_path + "\\steamapps";
 			if (fs::exists(default_path)) {
 				DetectInstalls(default_path);
 				LoadGameIcons();
@@ -195,11 +189,12 @@ public:
 			ImGui::InputTextWithHint("##Input", "Search", filter, IM_ARRAYSIZE(filter));
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::SliderFloat("##IconSizeSlider", &iconSize, 60, 360);
+			ImGui::SliderInt("##IconSizeSlider", &iconSize, 60, 360);
 			ImGui::PopItemWidth();
 			// TODO: Add option to select different image types (thumbnail/banner)
 			ImGui::BeginChild("##GameGrid", { 0, 0 }, true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-			RenderGameGrid({ iconSize, (float)(iconSize * 1.5) }, filter);
+			ImGui::InputText("##Test", message, IM_ARRAYSIZE(message));
+			RenderGameGrid({ (float)iconSize, (float)(iconSize * 1.5) }, filter);
 			ImGui::EndChild();
 		}
 		ImGui::End();
@@ -211,6 +206,9 @@ public:
 
 	virtual void OnDetach() override
 	{
+		// Add steam path to registered games
+		registered_games["steam_path"] = steam_path;
+
 		// Save registered games
 		ofstream file("SteamPaths.json");
 		file << registered_games.dump(4);
@@ -220,7 +218,7 @@ public:
 		default_thumbnail.reset();
 	}
 private:
-	float iconSize = 120;
+	int iconSize = 120;
 	char path[256];
 	char filter[256];
 };
@@ -246,6 +244,9 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 				{
 					DetectInstalls(cleansePath(path));
 					LoadGameIcons();
+					int size = registered_games.size();
+					string m = "Added " + to_string(size) + " games.";
+					strcpy(message, m.c_str());
 				}
 			}
 			ImGui::EndMenu();

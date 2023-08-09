@@ -165,10 +165,6 @@
     <ClInclude Include="src\includes\thumbnail.h" />
     <ClInclude Include="src\includes\utils.h" />
     <ClInclude Include="src\includes\window_icon.h" />
-    <ClInclude Include="thumbnail.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="GameManager-Icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WalnutApp.rc" />

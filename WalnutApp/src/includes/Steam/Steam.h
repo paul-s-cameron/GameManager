@@ -7,6 +7,8 @@ using json = nlohmann::json;
 
 namespace Steam
 {
+	inline char message[256];
+
 	inline string steam_path;
 
 	inline json selected_game;

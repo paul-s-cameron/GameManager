@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <regex>
 #include <list>
 
 #include "Steam.h"
@@ -24,9 +25,11 @@ namespace Steam
 	{
 		string libraryfolders_path = path + "\\libraryfolders.vdf";
 		if (!fs::exists(libraryfolders_path)) {
+			strcpy(message, "libraryfolders.vdf not found");
 			LoadFromAcf(path);
 			return;
 		}
+		strcpy(message, "libraryfolders.vdf found");
 
 		// Get drive letter from path
 		string drive_letter = path.substr(0, 2);
@@ -45,8 +48,13 @@ namespace Steam
 		istringstream inputStream(buffer.str());
 		json libraryData = parseJson(inputStream);
 
+		steam_path = cleansePath(libraryData["0"]["path"].get<string>());
+
 		// Iterate through libraryfolders.vdf
 		for (auto& [key, value] : libraryData.items()) {
+			static const regex numberRegex("^[-+]?[0-9]*\\.?[0-9]+$");
+			if (!regex_match(string(key), numberRegex))
+				continue;
 			string library_path = value["path"].get<string>();
 			library_path = cleansePath(library_path);
 			library_path += "\\steamapps";
@@ -60,6 +68,9 @@ namespace Steam
 		// Get drive letter from path
 		string drive_letter = path.substr(0, 2);
 		cout << drive_letter << endl;
+
+		if (!fs::exists(path))
+			return;
 
 		for (const auto& entry : fs::directory_iterator(path)) {
 			if (fs::is_regular_file(entry)) {
@@ -87,6 +98,8 @@ namespace Steam
 
 					//registered_games[manifestData["name"]] = manifestData;
 					registered_games[drive_letter][manifestData["name"]] = manifestData;
+
+					strcpy(message, "Game added");
 				}
 			}
 		}
@@ -97,10 +110,10 @@ namespace Steam
 		for (const auto& [drive, _] : registered_games.items()) {
 			for (const auto& [game, manifest] : registered_games[drive].items())
 			{
-				string library_cache = "C:\\Program Files (x86)\\Steam\\appcache\\librarycache\\";
-				string thumbnail_path = library_cache + (string)manifest["appid"] + "_library_600x900.jpg";
+				string thumbnail_path = steam_path + "\\appcache\\librarycache\\" + (string)manifest["appid"] + "_library_600x900.jpg";
 				if (fs::exists(thumbnail_path)) {
 					game_images[manifest["name"]] = make_shared<Walnut::Image>(thumbnail_path);
+					strcpy(message, "Game icon loaded");
 				}
 			}
 		}

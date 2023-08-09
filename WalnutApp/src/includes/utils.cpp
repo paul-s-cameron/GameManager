@@ -34,12 +34,12 @@ namespace utils
 
 		for (size_t i = 0; i < output.length(); ++i) {
 			// Replace backslashes with forward slashes
-			if (output[i] == '\\') {
-				output[i] = '/';
+			if (output[i] == '/') {
+				output[i] = '\\';
 			}
 
 			// Check for sequences of consecutive slashes
-			if (i > 0 && output[i] == '/' && output[i - 1] == '/') {
+			if (i > 0 && output[i] == '\\' && output[i - 1] == '\\') {
 				output.erase(i, 1); // Remove the extra slash
 				--i; // Adjust the index
 			}
