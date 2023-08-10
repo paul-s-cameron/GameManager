@@ -30,7 +30,6 @@
 #include "ImGui/Roboto-Regular.embed"
 #include "ImGui/Roboto-Bold.embed"
 #include "ImGui/Roboto-Italic.embed"
-#include <window_icon.h>
 
 extern bool g_ApplicationRunning;
 
@@ -604,7 +603,7 @@ namespace Walnut {
 		// Load images
 		{
 			uint32_t w, h;
-			void* data = Image::Decode(_windowIcon, sizeof(_windowIcon), w, h);
+			void* data = Image::Decode(g_WalnutIcon, sizeof(g_WalnutIcon), w, h);
 			m_AppHeaderIcon = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
 			free(data);
 		}

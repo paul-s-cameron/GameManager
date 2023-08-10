@@ -1,7 +1,5 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(516,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (..\bin-int\Dist-windows-x86_64\WalnutApp\) contains files shared from another project (WalnutApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   WalnutApp.cpp
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\steamapi\matchmakingtypes.h(35,3): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\steamapi\matchmakingtypes.h(37,3): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\steamapi\matchmakingtypes.h(226,2): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.hpp(32,44): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\WalnutApp.cpp(46,25): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   WalnutApp.vcxproj -> E:\Coding\C++\Applications\GameManager\dist\WalnutApp.exe

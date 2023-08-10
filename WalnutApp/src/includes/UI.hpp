@@ -26,6 +26,10 @@ public:
 	void RenderGameGrid(ImVec2 buttonSize, const char* filter);
 
 	void GamePopupMenu(std::string drive, json manifest);
+
+	int GetIconSize() { return iconSize; }
+
+	void SetIconSize(float size) { iconSize = size; }
 private:
 	char filter[256];
 	int iconSize = 120;

@@ -69,13 +69,6 @@ namespace Steam
 		return steamid3;
 	}
 
-	//string GetSteamID(const string& steamid64)
-	//{
-	//	string steamID = to_string(stoi(steamid64) & 0xFFFFFFFF);
-
-	//	return steamid3, steamID;
-	//}
-
 	// Add detected games to registered_games
 	void DetectInstalls(string path)
 	{

@@ -288,7 +288,7 @@ void GameInfoWindow::Render()
 
 			DisplayAccount();
 
-			//ManifestDebug();
+			ManifestDebug();
 		}
 	}
 	ImGui::End();

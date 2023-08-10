@@ -1,9 +1,8 @@
 #pragma once
+#include "includes/Includes.hpp"
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
-#include "includes/Includes.hpp"
-
-#include <thumbnail.h>
+#include "../images/thumbnail.h"
 
 using namespace std;
 namespace fs = filesystem;
@@ -43,6 +42,8 @@ public:
 
 		// GUI setup
 		ImGui::GetStyle().FrameRounding = 0.0f;
+		if (registered_games.count("icon_size") != 0)
+			gameGrid.SetIconSize((int)registered_games["icon_size"]);
 	}
 
 	virtual void OnUIRender() override
@@ -58,6 +59,7 @@ public:
 	{
 		// Add steam path to registered games
 		registered_games["steam_path"] = Steam::m_steamPath;
+		registered_games["icon_size"] = gameGrid.GetIconSize();
 
 		// Save registered games
 		ofstream file("SavedGames.json");
