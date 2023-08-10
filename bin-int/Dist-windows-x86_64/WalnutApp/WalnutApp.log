@@ -1,36 +1,13 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(516,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
 C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (..\bin-int\Dist-windows-x86_64\WalnutApp\) contains files shared from another project (WalnutApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  Steam.cpp
-  UI.cpp
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(72,43): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(74,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(77,31): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(127,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(128,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(162,118): warning C4305: '=': truncation from 'double' to 'float'
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(257,100): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
-  utils.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xstring(2765,53): warning C4244: 'argument': conversion from 'wchar_t' to 'const _Elem', possible loss of data
-          with
-          [
-              _Elem=char
-          ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\include\xstring(2621,17): message : see reference to function template instantiation 'void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct_from_iter<wchar_t*,wchar_t*,_Size_type>(_Iter,const _Sent,_Size)' being compiled
-          with
-          [
-              _Size_type=unsigned __int64,
-              _Iter=wchar_t *,
-              _Sent=wchar_t *,
-              _Size=unsigned __int64
-          ]
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\utils.cpp(129,16): message : see reference to function template instantiation 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string<std::_String_iterator<std::_String_val<std::_Simple_types<_Elem>>>,0>(_Iter,_Iter,const _Alloc &)' being compiled
-          with
-          [
-              _Elem=wchar_t,
-              _Iter=std::_String_iterator<std::_String_val<std::_Simple_types<wchar_t>>>,
-              _Alloc=std::allocator<char>
-          ]
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\utils.cpp(129,3): message : see the first reference to 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string' in 'Utils::BrowseFolder'
   WalnutApp.cpp
+  UI.cpp
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(116,43): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(118,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(121,31): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(171,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(172,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(206,118): warning C4305: '=': truncation from 'double' to 'float'
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(307,100): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
   Generating Code...
   WalnutApp.vcxproj -> E:\Coding\C++\Applications\GameManager\dist\WalnutApp.exe

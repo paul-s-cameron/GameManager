@@ -20,6 +20,50 @@ void DisplayJSON(const json& jsonData) {
 	}
 }
 
+bool FilledCheckbox(const char* label, bool* value, const float size = 28) {
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+
+	const ImGuiID id = window->GetID(label);
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+	ImVec2 pos = window->DC.CursorPos;
+	ImGui::InvisibleButton(label, ImVec2(label_size.x + size, label_size.y));
+
+	bool clicked = false;
+
+	if (ImGui::IsItemClicked()) {
+		*value = !(*value);
+		clicked = true;
+		ImGui::MarkItemEdited(id);
+	}
+
+	ImU32 bg_col = ImGui::GetColorU32(ImGuiCol_FrameBg);
+	ImU32 bg_col_active = ImGui::GetColorU32(ImGuiCol_FrameBgActive);
+	ImU32 check_col = ImGui::GetColorU32(ImGuiCol_CheckMark);
+
+	if (ImGui::IsItemHovered()) {
+		bg_col = ImGui::GetColorU32(ImGuiCol_FrameBgHovered);
+		bg_col_active = ImGui::GetColorU32(ImGuiCol_FrameBgActive);
+		check_col = ImGui::GetColorU32(ImGuiCol_Text);
+	}
+
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	draw_list->AddRectFilled(pos, ImVec2(pos.x + size, pos.y + size), bg_col, style.FrameRounding);
+	if (*value) {
+		const float pad = ImMax(1.0f, (float)(int)(size / 6.0f));
+		draw_list->AddRectFilled(ImVec2(pos.x + pad, pos.y + pad), ImVec2(pos.x + size - pad, pos.y + size - pad), check_col);
+	}
+
+	if (label_size.x > 0)
+		ImGui::RenderText(ImVec2(pos.x + size, pos.y), label);
+
+	return clicked;
+}
+
 bool ButtonCenter(const char* label, const ImVec2& size_arg)
 {
 	ImGuiButtonFlags flags = ImGuiButtonFlags_None;
@@ -92,11 +136,11 @@ void GameGrid::Render()
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 270);
 		ImGui::InputTextWithHint("##Input", "Search", filter, IM_ARRAYSIZE(filter));
 		ImGui::SameLine();
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 120);
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 48);
 		ImGui::SliderInt("##IconSizeSlider", &iconSize, 60, 360);
 		ImGui::SameLine();
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 10);
-		if (ImGui::Checkbox("Landscape", &header))
+		if (FilledCheckbox("##Landscape", &header, 32))
 		{
 			if (!header)
 				Steam::image_suffix = "_library_600x900.jpg";
@@ -252,6 +296,12 @@ void GameInfoWindow::Render()
 
 void GameInfoWindow::DisplayAccount()
 {
+	if (selected_game.find("selected_account") == selected_game.end())
+	{
+		if (!Steam::steamIds.empty())
+			selected_game["selected_account"] = Steam::steamIds[0];
+		else return;
+	}
 	string currentAccountName = string(Steam::steamUserData[selected_game["selected_account"]]["friends"]["PersonaName"]);
 	// Get index of current account
 	account = find(Steam::steamIds.begin(), Steam::steamIds.end(), selected_game["selected_account"]) - Steam::steamIds.begin();
