@@ -8,15 +8,13 @@ using namespace std;
 using namespace ImGui;
 using json = nlohmann::json;
 
-namespace utils
+namespace Utils
 {
-	void DisplayJSON(const json& jsonData);
+	string lowerString(string str);
 
 	string cleansePath(const string& path);
 
 	vector<string> SplitTextWithNewlines(const string& text, float maxWidth);
 
 	string BrowseFolder();
-
-	bool ButtonCenter(const char* label, const ImVec2& size_arg);
 }

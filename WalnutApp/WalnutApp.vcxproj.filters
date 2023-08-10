@@ -2,17 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\WalnutApp.cpp" />
-    <ClCompile Include="src\includes\Steam\Steam.cpp">
-      <Filter>Steam</Filter>
-    </ClCompile>
     <ClCompile Include="src\includes\utils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\includes\UI.cpp" />
+    <ClCompile Include="src\includes\Steam.cpp">
+      <Filter>Steam</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\includes\Steam\Steam.h">
-      <Filter>Steam</Filter>
-    </ClInclude>
     <ClInclude Include="src\includes\globals.h">
       <Filter>hpp</Filter>
     </ClInclude>
@@ -30,6 +28,10 @@
     </ClInclude>
     <ClInclude Include="src\includes\window_icon.h">
       <Filter>hpp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\UI.h" />
+    <ClInclude Include="src\includes\Steam.h">
+      <Filter>Steam</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

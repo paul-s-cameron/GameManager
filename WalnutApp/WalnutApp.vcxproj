@@ -80,7 +80,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WL_PLATFORM_WINDOWS;WL_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\Coding\C++\Applications\GameManager\WalnutApp\steamworks_sdk_157\sdk;..\vendor\imgui;..\vendor\glfw\include;..\Walnut\Source;..\Walnut\Platform\GUI;C:\VulkanSDK\1.3.250.1\Include;..\WalnutApp\images;..\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\vendor\imgui;..\vendor\glfw\include;..\Walnut\Source;..\Walnut\Platform\GUI;C:\VulkanSDK\1.3.250.1\Include;..\WalnutApp\images;..\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -144,7 +144,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\includes\Steam\Steam.cpp" />
+    <ClCompile Include="src\includes\Steam.cpp" />
+    <ClCompile Include="src\includes\UI.cpp" />
     <ClCompile Include="src\includes\utils.cpp" />
     <ClCompile Include="src\WalnutApp.cpp">
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -161,8 +162,9 @@
     <ClInclude Include="src\includes\globals.h" />
     <ClInclude Include="src\includes\json.hpp" />
     <ClInclude Include="src\includes\ManifestParser.hpp" />
-    <ClInclude Include="src\includes\Steam\Steam.h" />
+    <ClInclude Include="src\includes\Steam.h" />
     <ClInclude Include="src\includes\thumbnail.h" />
+    <ClInclude Include="src\includes\UI.h" />
     <ClInclude Include="src\includes\utils.h" />
     <ClInclude Include="src\includes\window_icon.h" />
   </ItemGroup>
