@@ -1,16 +1,5 @@
-#include <unordered_map>
-#include <filesystem>
-#include <Windows.h>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <vector>
-#include <regex>
-#include <list>
-
-#include "Steam.h"
-#include "utils.h"
-#include "globals.h"
+#pragma once
+#include "Includes.hpp"
 #include "ManifestParser.hpp"
 
 using namespace std;
@@ -20,6 +9,73 @@ using json = nlohmann::json;
 
 namespace Steam
 {
+	bool Init()
+	{
+		m_steamPath = Utils::Registry::GetString(HKEY_CURRENT_USER, m_pSteamRegistry, "SteamPath");
+		m_steamPath = Utils::cleansePath(m_steamPath);
+		return !m_steamPath.empty();
+	}
+
+	string GetLoginUser()
+	{
+		return Utils::Registry::GetString(HKEY_CURRENT_USER, m_pSteamRegistry, "AutoLoginUser");
+	}
+
+	bool IsRememberPasswordChecked()
+	{
+		return (Utils::Registry::GetDWORD(HKEY_CURRENT_USER, m_pSteamRegistry, "RememberPassword") == 1U);
+	}
+
+	bool IsRunning()
+	{
+		if (m_bNeverCheckIfRunning)
+			return false;
+		return (Utils::GetProcessID(&m_sExecutable[0]) != 0U);
+	}
+
+	void Start(string m_sArgs)
+	{
+		m_sArgs.insert(0, "-noreactlogin ");
+
+		cout << m_sArgs << endl;
+
+		string m_sSteamExe = m_steamPath + "\\" + m_sExecutable + " " + m_sArgs;
+
+		STARTUPINFOA m_sStartupInfo;
+		ZeroMemory(&m_sStartupInfo, sizeof(m_sStartupInfo));
+		m_sStartupInfo.cb = sizeof(STARTUPINFOA);
+
+		PROCESS_INFORMATION m_pProcessInfo;
+
+		if (!CreateProcessA(0, &m_sSteamExe[0], 0, 0, 0, 0, 0, 0, &m_sStartupInfo, &m_pProcessInfo))
+			return;
+
+		CloseHandle(m_pProcessInfo.hProcess);
+		CloseHandle(m_pProcessInfo.hThread);
+	}
+
+	void Exit()
+	{
+		if (!IsRunning()) return;
+
+		Start("-exitsteam");
+
+		while (IsRunning())
+			Sleep(500);
+	}
+
+	string GetSteamID3(const string& steamid64) {
+		string steamid3 = to_string(stoull(steamid64) & 0xFFFFFFFF);
+		return steamid3;
+	}
+
+	//string GetSteamID(const string& steamid64)
+	//{
+	//	string steamID = to_string(stoi(steamid64) & 0xFFFFFFFF);
+
+	//	return steamid3, steamID;
+	//}
+
 	// Add detected games to registered_games
 	void DetectInstalls(string path)
 	{
@@ -39,14 +95,14 @@ namespace Steam
 			return;
 
 		// Read the entire file content into the buffer
-		std::stringstream buffer;
+		stringstream buffer;
 		buffer << libraryFile.rdbuf();
 
 		// Convert contents to json
 		istringstream inputStream(buffer.str());
 		json libraryData = parseJson(inputStream);
 
-		steam_path = Utils::cleansePath(libraryData["0"]["path"].get<string>());
+		m_steamPath = Utils::cleansePath(libraryData["0"]["path"].get<string>());
 
 		// Iterate through libraryfolders.vdf
 		for (auto& [key, value] : libraryData.items()) {
@@ -66,7 +122,7 @@ namespace Steam
 	{
 		cout << "Loading games from " << path << endl;
 		// Get drive letter from path
-		string drive_letter = path.substr(0, 2);
+		string drive_letter = Utils::upperString(path.substr(0, 2));
 		cout << drive_letter << endl;
 
 		if (!fs::exists(path))
@@ -82,7 +138,7 @@ namespace Steam
 					cout << "Opened " << entry.path().string() << endl;
 
 					// Read the entire file content into the buffer
-					std::stringstream buffer;
+					stringstream buffer;
 					buffer << manifestFile.rdbuf();
 
 					// Convert contents to json
@@ -108,7 +164,7 @@ namespace Steam
 		for (const auto& [drive, _] : registered_games["Steam"].items()) {
 			for (const auto& [game, manifest] : registered_games["Steam"][drive].items())
 			{
-				string thumbnail_path = steam_path + "\\appcache\\librarycache\\" + (string)manifest["appid"] + image_suffix;
+				string thumbnail_path = m_steamPath + "\\appcache\\librarycache\\" + (string)manifest["appid"] + m_imageSuffix;
 				if (fs::exists(thumbnail_path)) {
 					game_images[manifest["name"]] = make_shared<Walnut::Image>(thumbnail_path);
 				}
@@ -120,38 +176,57 @@ namespace Steam
 
 	void LoadUserData()
 	{
-		if (!fs::exists(steam_path + "\\userdata"))
+		if (!fs::exists(m_steamPath + "\\config\\loginusers.vdf"))
 			return;
-		cout << "Loading user data..." << endl;
 
-		// Loop through each user and retrieve \\config\\localconfig.vdf
-		for (const auto& entry : fs::directory_iterator(steam_path + "\\userdata"))
+		// Get account data
+		ifstream userInfoFile(m_steamPath + "\\config\\loginusers.vdf");
+		if (userInfoFile.is_open())
 		{
-			if (fs::is_directory(entry)) {
-				string user_id = entry.path().filename().string();
-				string localconfig_path = entry.path().string() + "\\config\\localconfig.vdf";
-				if (!fs::exists(localconfig_path))
-					continue;
-				cout << "Found user " << user_id << endl;
+			stringstream buffer;
+			buffer << userInfoFile.rdbuf();
+			istringstream inputStream(buffer.str());
+			json parsedData = parseJson(inputStream);
 
-				// Read localconfig.vdf
-				ifstream localconfigFile(localconfig_path);
-				if (!localconfigFile.is_open())
-					continue;
+			// Initialize m_steamUserData
+			for (const auto& [uuid, data] : parsedData.items())
+			{
+				string steamID3 = GetSteamID3(uuid);
+				string account_name = data["AccountName"];
+				m_steamUserData[account_name] = json::object();
+				m_steamUserData[account_name]["steamID64"] = uuid;
+				m_steamUserData[account_name]["steamID3"] = steamID3;
+			}
 
-				// Read the entire file content into the buffer
-				std::stringstream buffer;
-				buffer << localconfigFile.rdbuf();
+			for (const auto& [username, data] : m_steamUserData.items())
+			{
+				string user_path = m_steamPath + "\\userdata\\" + string(data["steamID3"]);
+				if (fs::exists(user_path))
+				{
+					string localconfig_path = user_path + "\\config\\localconfig.vdf";
+					if (!fs::exists(localconfig_path))
+						continue;
 
-				// Convert contents to json
-				istringstream inputStream(buffer.str());
-				json localconfigData = parseJson(inputStream);
+					// Read localconfig.vdf
+					ifstream localconfigFile(localconfig_path);
+					if (!localconfigFile.is_open())
+						continue;
 
-				localconfigData["apps"] = localconfigData["Software"]["Valve"]["steam"]["apps"];
-				localconfigData.erase("Software");
+					// Read the entire file content into the buffer
+					stringstream buffer;
+					buffer << localconfigFile.rdbuf();
 
-				if (steamUserData.find(user_id) == steamUserData.end())
-					steamUserData[user_id] = localconfigData;
+					// Convert contents to json
+					istringstream inputStream(buffer.str());
+					json localconfigData = parseJson(inputStream);
+
+					m_steamUserData[username]["apps"] = json::array();
+					for (const auto& [appid, _] : localconfigData["Software"]["Valve"]["steam"]["apps"].items())
+						m_steamUserData[username]["apps"].push_back(appid);
+
+					cout << "Loaded " << username << " with " << m_steamUserData[username]["apps"].size() << " apps" << endl;
+				}
+				else cout << "User path " << user_path << " does not exist" << endl;
 			}
 		}
 	}
@@ -165,8 +240,34 @@ namespace Steam
 
 	void RunGame(string appid)
 	{
-		string command = "\"" + steam_path + "\" -applaunch " + appid;
-		system(command.c_str());
+		// Get selected account for this game
+		string currentAccount = GetLoginUser();
+
+		if (string(selected_game["selected_account"]) != currentAccount)
+		{
+			// Sign in to the selected account
+			cout << "Signing in to " << selected_game["selected_account"] << endl;
+
+			// Shutdown steam
+			Exit();
+
+			bool m_bSomeRegisterFailed = false;
+			if (!Utils::Registry::WriteString(HKEY_CURRENT_USER, m_pSteamRegistry, "AutoLoginUser", string(selected_game["selected_account"])))
+				m_bSomeRegisterFailed = true;
+
+			if (!Utils::Registry::WriteDWORD(HKEY_CURRENT_USER, m_pSteamRegistry, "RememberPassword", 1U))
+				m_bSomeRegisterFailed = true;
+
+			if (m_bSomeRegisterFailed)
+				cout << "Failed to write to registry" << endl;
+			else
+				Start(string("-silent -applaunch " + appid));
+		}
+		else
+		{
+			string command = "\"" + m_steamPath + "\\" + m_sExecutable + "\" -applaunch " + appid;
+			system(command.c_str());
+		}
 	}
 
 	void OpenSteamDB(string appid)
@@ -177,19 +278,25 @@ namespace Steam
 
 	void SelectGame(string drive, string game)
 	{
-		steamIds.clear();
+		m_steamAccounts.clear();
 		selected_game = registered_games["Steam"][drive][game];
 		selected_game["drive"] = drive;
-		selected_game["accounts"] = json::array();
-		for (const auto& [user, userData] : steamUserData.items())
+
+		for (const auto& [username, userData] : m_steamUserData.items())
 		{
-			if (userData["apps"].find(selected_game["appid"]) != userData["apps"].end())
+			for (const auto& appid : userData["apps"])
 			{
-				cout << "Found account " << user << endl;
-				selected_game["accounts"].push_back(user);
+				// Skip if this account doesn't have the selected game
+				if (appid != selected_game["appid"])
+					continue;
+
+				// Add account to list of Steam accounts that have this game
+				cout << "Found account " << username << endl;
+				m_steamAccounts.push_back(username);
+
+				// Set selected account to the first one found
 				if (selected_game.find("selected_account") == selected_game.end())
-					selected_game["selected_account"] = user;
-				steamIds.push_back(user);
+					selected_game["selected_account"] = username;
 			}
 		}
 	}

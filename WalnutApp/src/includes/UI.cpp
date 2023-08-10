@@ -1,8 +1,4 @@
-#include "globals.h"
-#include "Utils.h"
-#include "Steam.h"
-#include "Steam.h"
-#include "UI.h"
+#include "Includes.hpp"
 
 using json = nlohmann::json;
 
@@ -143,9 +139,9 @@ void GameGrid::Render()
 		if (FilledCheckbox("##Landscape", &header, 32))
 		{
 			if (!header)
-				Steam::image_suffix = "_library_600x900.jpg";
+				Steam::m_imageSuffix= "_library_600x900.jpg";
 			else
-				Steam::image_suffix = "_header.jpg";
+				Steam::m_imageSuffix = "_header.jpg";
 			Steam::LoadGameIcons();
 		}
 		ImGui::PopItemWidth();
@@ -178,8 +174,9 @@ void GameGrid::RenderGameGrid(ImVec2 buttonSize, const char* filter)
 	font->Scale = scale;
 
 	json steam_games = registered_games["Steam"];
-	for (const auto& [drive, _] : steam_games.items())
+	for (const auto& [key, _] : steam_games.items())
 	{
+		string drive = Utils::upperString(key);
 		string title = drive + " (" + to_string(steam_games[drive].size()) + ")";
 		if (!ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			continue;
@@ -225,6 +222,9 @@ void GameGrid::RenderGameGrid(ImVec2 buttonSize, const char* filter)
 		font->Scale = originalFontSize;
 		ImGui::SetCurrentFont(font);
 	}
+	
+	font->Scale = originalFontSize;
+	ImGui::SetCurrentFont(font);
 }
 
 void GameGrid::GamePopupMenu(string drive, json manifest)
@@ -298,25 +298,27 @@ void GameInfoWindow::DisplayAccount()
 {
 	if (selected_game.find("selected_account") == selected_game.end())
 	{
-		if (!Steam::steamIds.empty())
-			selected_game["selected_account"] = Steam::steamIds[0];
+		if (!Steam::m_steamAccounts.empty())
+			selected_game["selected_account"] = Steam::m_steamAccounts[0];
 		else return;
 	}
-	string currentAccountName = string(Steam::steamUserData[selected_game["selected_account"]]["friends"]["PersonaName"]);
+
+	string currentAccountName = string(selected_game["selected_account"]);
+
 	// Get index of current account
-	account = find(Steam::steamIds.begin(), Steam::steamIds.end(), selected_game["selected_account"]) - Steam::steamIds.begin();
+	account = find(Steam::m_steamAccounts.begin(), Steam::m_steamAccounts.end(), selected_game["selected_account"]) - Steam::m_steamAccounts.begin();
 
 	// Display account selection combo box
-	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(currentAccountName.c_str()).x);
-	if (ImGui::BeginCombo(currentAccountName.c_str(), string(Steam::steamIds[account]).c_str()))
+	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+	if (ImGui::BeginCombo("##AccountSelect", string(Steam::m_steamAccounts[account]).c_str()))
 	{
-		for (int i = 0; i < Steam::steamIds.size(); i++)
+		for (int i = 0; i < Steam::m_steamAccounts.size(); i++)
 		{
 			bool is_selected = (account == i);
-			if (ImGui::Selectable(string(Steam::steamIds[i]).c_str(), is_selected))
+			if (ImGui::Selectable(string(Steam::m_steamAccounts[i]).c_str(), is_selected))
 			{
 				account = i;
-				selected_game["selected_account"] = Steam::steamIds[i];
+				selected_game["selected_account"] = Steam::m_steamAccounts[i];
 				registered_games["Steam"][selected_game["drive"]][selected_game["name"]]["selected_account"] = selected_game["selected_account"];
 			}
 			if (is_selected)

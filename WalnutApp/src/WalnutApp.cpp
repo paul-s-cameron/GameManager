@@ -1,18 +1,9 @@
 #pragma once
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
-#include "Walnut/Image.h"
-#include "Walnut/UI/UI.h"
+#include "includes/Includes.hpp"
 
 #include <thumbnail.h>
-#include <filesystem>
-#include <fstream>
-
-#include "includes/globals.h"
-#include "includes/json.hpp"
-#include "includes/Steam.h"
-#include "includes/Utils.h"
-#include "includes/UI.h"
 
 using namespace std;
 namespace fs = filesystem;
@@ -29,26 +20,26 @@ public:
 		default_thumbnail = make_shared<Walnut::Image>(width, height, Walnut::ImageFormat::RGBA, data);
 		free(data);
 
-		Steam::steam_path = "C:\\Program Files (x86)\\Steam\\";
+		if (Steam::Init())
+			Steam::LoadUserData();
 
 		// Check for saved path files
 		if (fs::exists("SavedGames.json"))
 		{
 			ifstream file("SavedGames.json");
 			registered_games = json::parse(file);
-			Steam::steam_path = registered_games["steam_path"];
+			Steam::m_steamPath = registered_games["steam_path"];
 			registered_games.erase("steam_path");
 			Steam::LoadGameIcons();
 		}
 		else
 		{
-			string default_path = Steam::steam_path + "\\steamapps";
+			string default_path = Steam::m_steamPath + "\\steamapps";
 			if (fs::exists(default_path)) {
 				Steam::DetectInstalls(default_path);
 				Steam::LoadGameIcons();
 			}
 		}
-		Steam::LoadUserData();
 
 		// GUI setup
 		ImGui::GetStyle().FrameRounding = 0.0f;
@@ -66,7 +57,7 @@ public:
 	virtual void OnDetach() override
 	{
 		// Add steam path to registered games
-		registered_games["steam_path"] = Steam::steam_path;
+		registered_games["steam_path"] = Steam::m_steamPath;
 
 		// Save registered games
 		ofstream file("SavedGames.json");

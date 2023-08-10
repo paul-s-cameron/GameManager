@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\WalnutApp.cpp" />
-    <ClCompile Include="src\includes\utils.cpp">
+    <ClCompile Include="src\includes\Utils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\includes\UI.cpp" />
@@ -11,7 +11,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\includes\globals.h">
+    <ClInclude Include="src\includes\globals.hpp">
       <Filter>hpp</Filter>
     </ClInclude>
     <ClInclude Include="src\includes\json.hpp">
@@ -23,16 +23,17 @@
     <ClInclude Include="src\includes\thumbnail.h">
       <Filter>hpp</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\utils.h">
+    <ClInclude Include="src\includes\Utils.hpp">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\includes\window_icon.h">
       <Filter>hpp</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\UI.h" />
-    <ClInclude Include="src\includes\Steam.h">
+    <ClInclude Include="src\includes\UI.hpp" />
+    <ClInclude Include="src\includes\Steam.hpp">
       <Filter>Steam</Filter>
     </ClInclude>
+    <ClInclude Include="src\includes\Includes.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="hpp">
