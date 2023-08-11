@@ -269,6 +269,7 @@ void GameGrid::RenderAllGames(const char* filter, int buttonsPerRow, float paddi
 				{
 					string game = it.key();
 					json manifest = it.value();
+					it++;
 
 					// Skip if filter is set and game name doesn't match
 					if (strcmp(filter, "") != 0 && Utils::lowerString(game).find(Utils::lowerString(filter)) == string::npos)
@@ -298,8 +299,6 @@ void GameGrid::RenderAllGames(const char* filter, int buttonsPerRow, float paddi
 
 					// Draw popup menu
 					RenderPopupMenu(drive, game, manifest["appid"]);
-
-					it++;
 					row++;
 				}
 			}
@@ -360,8 +359,6 @@ void GameInfoWindow::Render()
 			shared_ptr<Walnut::Image> game_icon;
 
 			// Check if game icon exists and assign an image
-			//cout << selected_game.dump(4) << endl;
-
 			if (game_images.count(selected_game["name"]) != 0)
 				game_icon = game_images[selected_game["name"]];
 			else

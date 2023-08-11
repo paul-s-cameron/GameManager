@@ -52,8 +52,6 @@ public:
 		gameGrid.Render();
 		gameInfoWindow.Render();
 		accountInfo.Render();
-
-		//ImGui::ShowDemoWindow();
 	}
 
 	virtual void OnDetach() override
