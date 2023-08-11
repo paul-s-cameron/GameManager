@@ -113,10 +113,13 @@ namespace Steam
 
 	void LoadFromAcf(string path)
 	{
-		cout << "Loading games from " << path << endl;
 		// Get drive letter from path
-		string drive_letter = Utils::upperString(path.substr(0, 2));
-		cout << drive_letter << endl;
+		string drive = Utils::upperString(path.substr(0, 2));
+
+		if (registered_games.count("all_games") == 0)
+			registered_games["all_games"] = json::object();
+		if (registered_games["all_games"].count(drive) == 0)
+			registered_games["all_games"][drive] = json::object();
 
 		if (!fs::exists(path))
 			return;
@@ -138,15 +141,15 @@ namespace Steam
 					istringstream inputStream(buffer.str());
 					json manifestData = parseJson(inputStream);
 
-					if (registered_games["Steam"].count(drive_letter) == 0)
-						registered_games["Steam"][drive_letter] = json::object();
+					if (registered_games["all_games"][drive].count("Steam") == 0)
+						registered_games["all_games"][drive]["Steam"] = json::object();
 
 					// Check if registered_games already contains this game
-					if (find(registered_games["Steam"][drive_letter].begin(), registered_games["Steam"][drive_letter].end(), manifestData["name"]) != registered_games["Steam"][drive_letter].end())
+					if (find(registered_games["all_games"][drive]["Steam"].begin(), registered_games["all_games"][drive]["Steam"].end(), manifestData["name"]) != registered_games["all_games"][drive]["Steam"].end())
 						continue;
 
 					//registered_games[manifestData["name"]] = manifestData;
-					registered_games["Steam"][drive_letter][manifestData["name"]] = manifestData;
+					registered_games["all_games"][drive]["Steam"][manifestData["name"]] = manifestData;
 				}
 			}
 		}
@@ -154,15 +157,22 @@ namespace Steam
 
 	void LoadGameIcons()
 	{
-		for (const auto& [drive, _] : registered_games["Steam"].items()) {
-			for (const auto& [game, manifest] : registered_games["Steam"][drive].items())
+		for (const auto& [drive, platforms] : registered_games["all_games"].items()) {
+			for (const auto& [platform, games] : platforms.items())
 			{
-				string thumbnail_path = m_steamPath + "\\appcache\\librarycache\\" + (string)manifest["appid"] + m_imageSuffix;
-				if (fs::exists(thumbnail_path)) {
-					game_images[manifest["name"]] = make_shared<Walnut::Image>(thumbnail_path);
+				// Load steam icons
+				if (string(platform) == "Steam")
+				{
+					for (const auto& [game, manifest] : registered_games["all_games"][drive]["Steam"].items())
+					{
+						string thumbnail_path = m_steamPath + "\\appcache\\librarycache\\" + (string)manifest["appid"] + m_imageSuffix;
+						if (fs::exists(thumbnail_path)) {
+							game_images[manifest["name"]] = make_shared<Walnut::Image>(thumbnail_path);
+						}
+						else if (game_images.find(manifest["name"]) != game_images.end())
+							game_images.erase(manifest["name"]);
+					}
 				}
-				else if (game_images.find(manifest["name"]) != game_images.end())
-					game_images.erase(manifest["name"]);
 			}
 		}
 	}
@@ -229,9 +239,20 @@ namespace Steam
 
 	void RemoveGame(string drive, string game)
 	{
-		registered_games["Steam"][drive].erase(game);
+		registered_games["all_games"][drive]["Steam"].erase(game);
 		if (game_images.find(game) != game_images.end())
 			game_images.erase(game);
+
+		try {
+			registered_games["favorite"][drive]["Steam"].erase(game);
+			if (registered_games["favorite"][drive]["Steam"].empty())
+				registered_games["favorite"][drive].erase("Steam");
+			if (registered_games["favorite"][drive].empty())
+				registered_games["favorite"].erase(drive);
+		}
+		catch (const exception& e) {
+			cout << "Game not in favorites" << endl;
+		}
 	}
 
 	void RunGame(string appid)
@@ -274,9 +295,11 @@ namespace Steam
 
 	void SelectGame(string drive, string game)
 	{
+		cout << "Selecting game " << game << " on drive " << drive << endl;
 		m_steamGameAccounts.clear();
-		selected_game = registered_games["Steam"][drive][game];
+		selected_game = registered_games["all_games"][drive]["Steam"][game];
 		selected_game["drive"] = drive;
+		selected_game["platform"] = "Steam";
 
 		for (const auto& [username, userData] : m_steamUserData.items())
 		{

@@ -167,71 +167,184 @@ void GameGrid::RenderGameGrid(ImVec2 buttonSize, const char* filter)
 	int remainingWidth = ImGui::GetContentRegionAvail().x - (buttonsPerRow * buttonSize.x);
 	float padding = remainingWidth / (buttonsPerRow - 1);
 
-	json steam_games = registered_games["Steam"];
-	for (const auto& [key, _] : steam_games.items())
+	RenderFavoriteGames(filter, buttonsPerRow, padding, buttonSize);
+	RenderAllGames(filter, buttonsPerRow, padding, buttonSize);
+}
+
+void GameGrid::RenderFavoriteGames(const char* filter, int buttonsPerRow, float padding, ImVec2 buttonSize)
+{
+	///////////////////////////////////////////////
+	// This loop does not seperate games by drive//
+
+	if (registered_games.count("favorite") == 0) return;
+	if (registered_games["favorite"].empty()) return;
+	if (!ImGui::CollapsingHeader("Favorites", ImGuiTreeNodeFlags_DefaultOpen))
+		return;
+
+	int row = 0;
+	for (const auto& [drive, platforms] : registered_games["favorite"].items())
 	{
-		string drive = Utils::upperString(key);
-		string title = drive + " (" + to_string(steam_games[drive].size()) + ")";
+		for (auto app = platforms.begin(); app != platforms.end();)
+		{
+			string platform = app.key();
+			json games = app.value();
+			app++;
+
+			// Load Steam games
+			if (string(platform) == "Steam")
+			{
+				for (auto it = games.begin(); it != games.end();)
+				{
+					string game = it.key();
+					string appid = it.value();
+					it++;
+
+					// Skip if filter is set and game name doesn't match
+					if (strcmp(filter, "") != 0 && Utils::lowerString(game).find(Utils::lowerString(filter)) == string::npos)
+						continue;
+
+					// Add padding between buttons
+					if (row != 0 && row % buttonsPerRow != 0)
+						ImGui::SameLine(0, padding);
+
+					if (game_images.count(game) > 0)
+					{
+						// Detect if mouse is hovering over button, and dim if so
+						ImVec2 buttonPos = ImGui::GetCursorScreenPos();
+						float dim = 1;
+						if (ImGui::IsMouseHoveringRect(buttonPos, ImVec2(buttonPos.x + buttonSize.x, buttonPos.y + buttonSize.y))) dim = 0.8;
+
+						// Draw Image button
+						PushID(("favorite" + game).c_str());
+						if (ImGui::ImageButton(game_images[game]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0, { 0, 0, 0, 0 }, { 1, 1, 1, dim }))
+							Steam::SelectGame(drive, game);
+						PopID();
+					}
+					else
+					{
+						// Draw Text button
+						if (ButtonCenter(game.c_str(), buttonSize))
+							Steam::SelectGame(drive, game);
+					}
+
+					if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
+						ImGui::OpenPopup(string(appid).c_str());
+					}
+					if (registered_games["favorite"][drive].count("Steam") == 0)
+						break;
+					row++;
+				}
+			}
+		}
+
+		if (registered_games["favorite"][drive].empty())
+		{
+			registered_games["favorite"].erase(drive);
+			break;
+		}
+	}
+}
+
+void GameGrid::RenderAllGames(const char* filter, int buttonsPerRow, float padding, ImVec2 buttonSize)
+{
+	for (const auto& [drive, platforms] : registered_games["all_games"].items())
+	{
+		// Render drive divider
+		int drive_games = 0;
+		for (const auto& [platform, games] : platforms.items())
+			drive_games += games.size();
+		string title = drive + " (" + to_string(drive_games) + " games)";
 		if (!ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			continue;
 
-		int row = 0;
-		for (auto it = steam_games[drive].begin(); it != steam_games[drive].end(); ) {
-			json manifest = *(it++);
-			string game = manifest["name"];
+		for (const auto& [platform, games] : platforms.items())
+		{
+			if (games.empty()) continue;
 
-			// Skip if filter is set and game name doesn't match
-			if (strcmp(filter, "") != 0 && Utils::lowerString(game).find(Utils::lowerString(filter)) == string::npos)
-				continue;
-
-			// Add padding between buttons
-			if (row != 0 && row % buttonsPerRow != 0)
-				ImGui::SameLine(0, padding);
-
-			if (game_images.count(manifest["name"]) > 0)
+			// Load Steam games
+			if (string(platform) == "Steam")
 			{
-				// Detect if mouse is hovering over button, and dim if so
-				ImVec2 buttonPos = ImGui::GetCursorScreenPos();
-				float dim = 1;
-				if (ImGui::IsMouseHoveringRect(buttonPos, ImVec2(buttonPos.x + buttonSize.x, buttonPos.y + buttonSize.y))) dim = 0.8;
-
-				// Draw Image button
-				if (ImGui::ImageButton(game_images[manifest["name"]]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0, { 0, 0, 0, 0 }, { 1, 1, 1, dim }))
-					Steam::SelectGame(drive, manifest["name"]);
-			}
-			else
-			{
-				// Draw Text button
-				if (ButtonCenter(game.c_str(), buttonSize))
-					Steam::SelectGame(drive, manifest["name"]);
-			}
-
-			// Draw popup menu
-			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
-				ImGui::OpenPopup(string(manifest["appid"]).c_str());
-			}
-			if (ImGui::BeginPopup(string(manifest["appid"]).c_str()))
-			{
-				if (ImGui::MenuItem("Favorite"))
+				int row = 0;
+				for (auto it = games.begin(); it != games.end();)
 				{
-					if (registered_games.find("favorite") == registered_games.end())
-						registered_games["favorite"] = json::object();
+					string game = it.key();
+					json manifest = it.value();
 
-					registered_games["favorite"]["Steam"][drive] = manifest["name"];
+					// Skip if filter is set and game name doesn't match
+					if (strcmp(filter, "") != 0 && Utils::lowerString(game).find(Utils::lowerString(filter)) == string::npos)
+						continue;
+
+					// Add padding between buttons
+					if (row != 0 && row % buttonsPerRow != 0)
+						ImGui::SameLine(0, padding);
+
+					if (game_images.count(game) > 0)
+					{
+						// Detect if mouse is hovering over button, and dim if so
+						ImVec2 buttonPos = ImGui::GetCursorScreenPos();
+						float dim = 1;
+						if (ImGui::IsMouseHoveringRect(buttonPos, ImVec2(buttonPos.x + buttonSize.x, buttonPos.y + buttonSize.y))) dim = 0.8;
+
+						// Draw Image button
+						if (ImGui::ImageButton(game_images[game]->GetDescriptorSet(), buttonSize, { 0, 0 }, { 1, 1 }, 0, { 0, 0, 0, 0 }, { 1, 1, 1, dim }))
+							Steam::SelectGame(drive, game);
+					}
+					else
+					{
+						// Draw Text button
+						if (ButtonCenter(game.c_str(), buttonSize))
+							Steam::SelectGame(drive, game);
+					}
+
+					// Draw popup menu
+					RenderPopupMenu(drive, game, manifest["appid"]);
+
+					it++;
+					row++;
 				}
-				if (ImGui::MenuItem("Launch"))
-				{
-					Steam::SelectGame(drive, manifest["name"]);
-					Steam::RunGame(manifest["appid"]);
-				}
-				if (ImGui::MenuItem("SteamDB"))
-					Steam::OpenSteamDB(manifest["appid"]);
-				if (ImGui::MenuItem("Hide"))
-					Steam::RemoveGame(drive, manifest["name"]);
-				ImGui::EndPopup();
 			}
-			row++;
 		}
+	}
+}
+
+void GameGrid::RenderPopupMenu(string drive, string game, string appid)
+{
+	if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
+		ImGui::OpenPopup(string(appid).c_str());
+	}
+	if (ImGui::BeginPopup(string(appid).c_str()))
+	{
+		// Logic for favorites
+		bool is_favorite = false;
+		if (registered_games["favorite"].count(drive) > 0)
+		{
+			if (registered_games["favorite"][drive]["Steam"].count(game) > 0)
+				is_favorite = true;
+		}
+		if (is_favorite)
+		{
+			if (ImGui::MenuItem("Unfavorite"))
+			{
+				registered_games["favorite"][drive]["Steam"].erase(game);
+				if (registered_games["favorite"][drive]["Steam"].empty())
+					registered_games["favorite"][drive].erase("Steam");
+			}
+		}
+		else
+			if (ImGui::MenuItem("Favorite"))
+				registered_games["favorite"][drive]["Steam"][game] = appid;
+		//end
+
+		if (ImGui::MenuItem("Launch"))
+		{
+			Steam::SelectGame(drive, game);
+			Steam::RunGame(appid);
+		}
+		if (ImGui::MenuItem("SteamDB"))
+			Steam::OpenSteamDB(appid);
+		if (ImGui::MenuItem("Hide"))
+			Steam::RemoveGame(drive, game);
+		ImGui::EndPopup();
 	}
 }
 
@@ -247,6 +360,8 @@ void GameInfoWindow::Render()
 			shared_ptr<Walnut::Image> game_icon;
 
 			// Check if game icon exists and assign an image
+			//cout << selected_game.dump(4) << endl;
+
 			if (game_images.count(selected_game["name"]) != 0)
 				game_icon = game_images[selected_game["name"]];
 			else
@@ -287,14 +402,13 @@ void GameInfoWindow::Render()
 
 void GameInfoWindow::DisplayAccount()
 {
+	if (selected_game["platform"] != "Steam") return;
 	if (selected_game.find("selected_account") == selected_game.end())
 	{
 		if (!Steam::m_steamGameAccounts.empty())
 			selected_game["selected_account"] = Steam::m_steamGameAccounts[0];
 		else return;
 	}
-
-	string currentAccountName = string(selected_game["selected_account"]);
 
 	// Get index of current account
 	account = find(Steam::m_steamGameAccounts.begin(), Steam::m_steamGameAccounts.end(), selected_game["selected_account"]) - Steam::m_steamGameAccounts.begin();
@@ -310,7 +424,7 @@ void GameInfoWindow::DisplayAccount()
 			{
 				account = i;
 				selected_game["selected_account"] = Steam::m_steamGameAccounts[i];
-				registered_games["Steam"][selected_game["drive"]][selected_game["name"]]["selected_account"] = selected_game["selected_account"];
+				registered_games["all_games"][selected_game["drive"]]["Steam"][selected_game["name"]]["selected_account"] = selected_game["selected_account"];
 			}
 			if (is_selected)
 				ImGui::SetItemDefaultFocus();

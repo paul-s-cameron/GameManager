@@ -25,6 +25,12 @@ public:
 
 	void RenderGameGrid(ImVec2 buttonSize, const char* filter);
 
+	void RenderFavoriteGames(const char* filter, int buttonsPerRow, float padding, ImVec2 buttonSize);
+
+	void RenderAllGames(const char* filter, int buttonsPerRow, float padding, ImVec2 buttonSize);
+
+	void RenderPopupMenu(string drive, string game, string appid);
+
 	int GetIconSize() { return iconSize; }
 
 	void SetIconSize(float size) { iconSize = size; }
