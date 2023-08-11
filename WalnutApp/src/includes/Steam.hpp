@@ -10,6 +10,7 @@ namespace Steam
 	inline bool						m_bNeverCheckIfRunning = false;
 	inline std::string				m_imageSuffix = "_library_600x900.jpg";
 	inline json						m_steamUserData = json::object();
+	inline std::vector<std::string> m_steamGameAccounts = {};
 	inline std::vector<std::string> m_steamAccounts = {};
 
 	bool Init();

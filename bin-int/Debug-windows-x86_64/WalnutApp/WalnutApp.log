@@ -1,2 +1,12 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (..\bin-int\Debug-windows-x86_64\WalnutApp\) contains files shared from another project (WalnutApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  UI.cpp
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.hpp(32,44): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(112,43): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(114,37): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(117,31): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(167,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(168,16): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(203,118): warning C4305: '=': truncation from 'double' to 'float'
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(309,122): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.cpp(348,95): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
   WalnutApp.vcxproj -> E:\Coding\C++\Applications\GameManager\bin\Debug-windows-x86_64\WalnutApp\WalnutApp.exe

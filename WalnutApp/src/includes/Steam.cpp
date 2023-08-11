@@ -217,6 +217,9 @@ namespace Steam
 					for (const auto& [appid, _] : localconfigData["Software"]["Valve"]["steam"]["apps"].items())
 						m_steamUserData[username]["apps"].push_back(appid);
 
+					// Add to m_steamAcounts
+					m_steamAccounts.push_back(username);
+
 					cout << "Loaded " << username << " with " << m_steamUserData[username]["apps"].size() << " apps" << endl;
 				}
 				else cout << "User path " << user_path << " does not exist" << endl;
@@ -271,7 +274,7 @@ namespace Steam
 
 	void SelectGame(string drive, string game)
 	{
-		m_steamAccounts.clear();
+		m_steamGameAccounts.clear();
 		selected_game = registered_games["Steam"][drive][game];
 		selected_game["drive"] = drive;
 
@@ -285,7 +288,7 @@ namespace Steam
 
 				// Add account to list of Steam accounts that have this game
 				cout << "Found account " << username << endl;
-				m_steamAccounts.push_back(username);
+				m_steamGameAccounts.push_back(username);
 
 				// Set selected account to the first one found
 				if (selected_game.find("selected_account") == selected_game.end())

@@ -51,6 +51,7 @@ public:
 		// Main window render
 		gameGrid.Render();
 		gameInfoWindow.Render();
+		accountInfo.Render();
 
 		//ImGui::ShowDemoWindow();
 	}
@@ -73,6 +74,7 @@ private:
 	char path[256];
 
 	GameGrid gameGrid;
+	AccountInfo accountInfo;
 	GameInfoWindow gameInfoWindow;
 };
 

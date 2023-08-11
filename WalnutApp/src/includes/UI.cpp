@@ -167,12 +167,6 @@ void GameGrid::RenderGameGrid(ImVec2 buttonSize, const char* filter)
 	int remainingWidth = ImGui::GetContentRegionAvail().x - (buttonsPerRow * buttonSize.x);
 	float padding = remainingWidth / (buttonsPerRow - 1);
 
-	// Scale font size based on button size
-	ImFont* font = ImGui::GetFont();
-	float originalFontSize = font->Scale;
-	float scale = buttonSize.x / 120;
-	font->Scale = scale;
-
 	json steam_games = registered_games["Steam"];
 	for (const auto& [key, _] : steam_games.items())
 	{
@@ -181,7 +175,6 @@ void GameGrid::RenderGameGrid(ImVec2 buttonSize, const char* filter)
 		if (!ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			continue;
 
-		ImGui::SetCurrentFont(font);
 		int row = 0;
 		for (auto it = steam_games[drive].begin(); it != steam_games[drive].end(); ) {
 			json manifest = *(it++);
@@ -214,33 +207,31 @@ void GameGrid::RenderGameGrid(ImVec2 buttonSize, const char* filter)
 			}
 
 			// Draw popup menu
-			GamePopupMenu(drive, manifest);
+			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
+				ImGui::OpenPopup(string(manifest["appid"]).c_str());
+			}
+			if (ImGui::BeginPopup(string(manifest["appid"]).c_str()))
+			{
+				if (ImGui::MenuItem("Favorite"))
+				{
+					if (registered_games.find("favorite") == registered_games.end())
+						registered_games["favorite"] = json::object();
+
+					registered_games["favorite"]["Steam"][drive] = manifest["name"];
+				}
+				if (ImGui::MenuItem("Launch"))
+				{
+					Steam::SelectGame(drive, manifest["name"]);
+					Steam::RunGame(manifest["appid"]);
+				}
+				if (ImGui::MenuItem("SteamDB"))
+					Steam::OpenSteamDB(manifest["appid"]);
+				if (ImGui::MenuItem("Hide"))
+					Steam::RemoveGame(drive, manifest["name"]);
+				ImGui::EndPopup();
+			}
 			row++;
 		}
-
-		// Reset font scale
-		font->Scale = originalFontSize;
-		ImGui::SetCurrentFont(font);
-	}
-	
-	font->Scale = originalFontSize;
-	ImGui::SetCurrentFont(font);
-}
-
-void GameGrid::GamePopupMenu(string drive, json manifest)
-{
-	if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
-		ImGui::OpenPopup(string(manifest["appid"]).c_str());
-	}
-	if (ImGui::BeginPopup(string(manifest["appid"]).c_str()))
-	{
-		if (ImGui::MenuItem("Launch"))
-			Steam::RunGame(manifest["appid"]);
-		if (ImGui::MenuItem("SteamDB"))
-			Steam::OpenSteamDB(manifest["appid"]);
-		if (ImGui::MenuItem("Hide"))
-			Steam::RemoveGame(drive, manifest["name"]);
-		ImGui::EndPopup();
 	}
 }
 
@@ -298,27 +289,27 @@ void GameInfoWindow::DisplayAccount()
 {
 	if (selected_game.find("selected_account") == selected_game.end())
 	{
-		if (!Steam::m_steamAccounts.empty())
-			selected_game["selected_account"] = Steam::m_steamAccounts[0];
+		if (!Steam::m_steamGameAccounts.empty())
+			selected_game["selected_account"] = Steam::m_steamGameAccounts[0];
 		else return;
 	}
 
 	string currentAccountName = string(selected_game["selected_account"]);
 
 	// Get index of current account
-	account = find(Steam::m_steamAccounts.begin(), Steam::m_steamAccounts.end(), selected_game["selected_account"]) - Steam::m_steamAccounts.begin();
+	account = find(Steam::m_steamGameAccounts.begin(), Steam::m_steamGameAccounts.end(), selected_game["selected_account"]) - Steam::m_steamGameAccounts.begin();
 
 	// Display account selection combo box
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-	if (ImGui::BeginCombo("##AccountSelect", string(Steam::m_steamAccounts[account]).c_str()))
+	if (ImGui::BeginCombo("##GameAccountSelect", string(Steam::m_steamGameAccounts[account]).c_str()))
 	{
-		for (int i = 0; i < Steam::m_steamAccounts.size(); i++)
+		for (int i = 0; i < Steam::m_steamGameAccounts.size(); i++)
 		{
 			bool is_selected = (account == i);
-			if (ImGui::Selectable(string(Steam::m_steamAccounts[i]).c_str(), is_selected))
+			if (ImGui::Selectable(string(Steam::m_steamGameAccounts[i]).c_str(), is_selected))
 			{
 				account = i;
-				selected_game["selected_account"] = Steam::m_steamAccounts[i];
+				selected_game["selected_account"] = Steam::m_steamGameAccounts[i];
 				registered_games["Steam"][selected_game["drive"]][selected_game["name"]]["selected_account"] = selected_game["selected_account"];
 			}
 			if (is_selected)
@@ -336,4 +327,56 @@ void GameInfoWindow::ManifestDebug()
 		DisplayJSON(selected_game);
 		ImGui::TreePop();
 	}
+}
+
+void AccountInfo::Render()
+{
+	if (ImGui::Begin("Account Info", false, ImGuiWindowFlags_NoScrollbar))
+	{
+		if (!Steam::m_steamAccounts.empty())
+		{
+			// Get index of current account
+			account = find(Steam::m_steamAccounts.begin(), Steam::m_steamAccounts.end(), current_user) - Steam::m_steamAccounts.begin();
+
+			// Display account selection combo box
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+			if (ImGui::BeginCombo("##AccountSelect", string(Steam::m_steamAccounts[account]).c_str()))
+			{
+				for (int i = 0; i < Steam::m_steamAccounts.size(); i++)
+				{
+					bool is_selected = (account == i);
+					if (ImGui::Selectable(string(Steam::m_steamAccounts[i]).c_str(), is_selected))
+					{
+						account = i;
+						current_user = Steam::m_steamAccounts[i];
+					}
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::Button("Login", { ImGui::GetContentRegionAvail().x, 32 }))
+			{
+				if (current_user != Steam::GetLoginUser())
+				{
+					// Shutdown steam
+					Steam::Exit();
+
+					bool m_bSomeRegisterFailed = false;
+					if (!Utils::Registry::WriteString(HKEY_CURRENT_USER, Steam::m_pSteamRegistry, "AutoLoginUser", current_user))
+						m_bSomeRegisterFailed = true;
+
+					if (!Utils::Registry::WriteDWORD(HKEY_CURRENT_USER, Steam::m_pSteamRegistry, "RememberPassword", 1U))
+						m_bSomeRegisterFailed = true;
+
+					if (m_bSomeRegisterFailed)
+						cout << "Failed to write to registry" << endl;
+					else
+						Steam::Start();
+				}
+			}
+		}
+	}
+	ImGui::End();
 }
