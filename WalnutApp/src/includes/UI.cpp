@@ -450,7 +450,7 @@ void AccountInfo::Render()
 		if (!Steam::m_steamAccounts.empty())
 		{
 			// Get index of current account
-			account = find(Steam::m_steamGameAccounts .begin(), Steam::m_steamGameAccounts.end(), current_user) - Steam::m_steamAccounts.begin();
+			account = find(Steam::m_steamAccounts.begin(), Steam::m_steamAccounts.end(), current_user) - Steam::m_steamAccounts.begin();
 
 			// Display account selection combo box
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
