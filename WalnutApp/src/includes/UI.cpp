@@ -308,6 +308,8 @@ void GameGrid::RenderAllGames(const char* filter, int buttonsPerRow, float paddi
 
 void GameGrid::RenderPopupMenu(string drive, string game, string appid)
 {
+	// TODO: Fix popup menu not working for favorited games if they are not rendered in RenderAllGames
+	
 	if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(1)) {
 		ImGui::OpenPopup(string(appid).c_str());
 	}
@@ -416,8 +418,9 @@ void GameInfoWindow::DisplayAccount()
 	{
 		for (int i = 0; i < Steam::m_steamGameAccounts.size(); i++)
 		{
+			string displayName = Steam::m_steamGameAccounts[i] + " (" + Steam::m_steamUserData[Steam::m_steamGameAccounts[i]]["PersonaName"].get<string>() + ")";
 			bool is_selected = (account == i);
-			if (ImGui::Selectable(string(Steam::m_steamGameAccounts[i]).c_str(), is_selected))
+			if (ImGui::Selectable(displayName.c_str(), is_selected))
 			{
 				account = i;
 				selected_game["selected_account"] = Steam::m_steamGameAccounts[i];
@@ -447,7 +450,7 @@ void AccountInfo::Render()
 		if (!Steam::m_steamAccounts.empty())
 		{
 			// Get index of current account
-			account = find(Steam::m_steamAccounts.begin(), Steam::m_steamAccounts.end(), current_user) - Steam::m_steamAccounts.begin();
+			account = find(Steam::m_steamGameAccounts .begin(), Steam::m_steamGameAccounts.end(), current_user) - Steam::m_steamAccounts.begin();
 
 			// Display account selection combo box
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
@@ -455,8 +458,9 @@ void AccountInfo::Render()
 			{
 				for (int i = 0; i < Steam::m_steamAccounts.size(); i++)
 				{
+					string displayName = Steam::m_steamAccounts[i] + " (" + Steam::m_steamUserData[Steam::m_steamAccounts[i]]["PersonaName"].get<string>() + ")";
 					bool is_selected = (account == i);
-					if (ImGui::Selectable(string(Steam::m_steamAccounts[i]).c_str(), is_selected))
+					if (ImGui::Selectable(displayName.c_str(), is_selected))
 					{
 						account = i;
 						current_user = Steam::m_steamAccounts[i];

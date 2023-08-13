@@ -95,7 +95,8 @@ namespace Steam
 		istringstream inputStream(buffer.str());
 		json libraryData = parseJson(inputStream);
 
-		m_steamPath = Utils::cleansePath(libraryData["0"]["path"].get<string>());
+		if (!fs::exists(m_steamPath))
+			m_steamPath = Utils::cleansePath(libraryData["0"]["path"].get<string>());
 
 		// Iterate through libraryfolders.vdf
 		for (auto& [key, value] : libraryData.items()) {
@@ -113,6 +114,9 @@ namespace Steam
 
 	void LoadFromAcf(string path)
 	{
+		if (!fs::exists(path))
+			return;
+
 		// Get drive letter from path
 		string drive = Utils::upperString(path.substr(0, 2));
 
@@ -120,9 +124,6 @@ namespace Steam
 			registered_games["all_games"] = json::object();
 		if (registered_games["all_games"].count(drive) == 0)
 			registered_games["all_games"][drive] = json::object();
-
-		if (!fs::exists(path))
-			return;
 
 		for (const auto& entry : fs::directory_iterator(path)) {
 			if (fs::is_regular_file(entry)) {
@@ -199,6 +200,7 @@ namespace Steam
 				m_steamUserData[account_name] = json::object();
 				m_steamUserData[account_name]["steamID64"] = uuid;
 				m_steamUserData[account_name]["steamID3"] = steamID3;
+				m_steamUserData[account_name]["PersonaName"] = data["PersonaName"];
 			}
 
 			for (const auto& [username, data] : m_steamUserData.items())

@@ -27,8 +27,6 @@ public:
 		{
 			ifstream file("SavedGames.json");
 			registered_games = json::parse(file);
-			Steam::m_steamPath = registered_games["steam_path"];
-			registered_games.erase("steam_path");
 			Steam::LoadGameIcons();
 		}
 		else
@@ -57,7 +55,6 @@ public:
 	virtual void OnDetach() override
 	{
 		// Add steam path to registered games
-		registered_games["steam_path"] = Steam::m_steamPath;
 		registered_games["icon_size"] = gameGrid.GetIconSize();
 
 		// Save registered games
@@ -111,10 +108,26 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 			{
 				if (!registered_games.empty())
 				{
-					int randomIndex = rand() % registered_games.size();
-					auto it = registered_games.begin();
+					int randomIndex = rand() % registered_games["all_games"].size();
+					auto it = registered_games["all_games"].begin();
 					advance(it, randomIndex);
-					Steam::RunGame(it.value()["appid"]);
+					string drive = it.key();
+
+					randomIndex = rand() % it.value().size();
+					auto it2 = it.value().begin();
+					advance(it2, randomIndex);
+					string platform = it2.key();
+
+					randomIndex = rand() % it2.value().size();
+					auto it3 = it2.value().begin();
+					advance(it3, randomIndex);
+					string game = it3.key();
+
+					if (platform == "Steam")
+					{
+						Steam::SelectGame(drive, game);
+						Steam::RunGame(it3.value()["appid"]);
+					}
 				}
 			}
 			ImGui::EndMenu();
