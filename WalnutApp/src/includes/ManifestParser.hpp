@@ -1,3 +1,10 @@
+// #############################################
+// # Author: scameronpaul                      #
+// # File: ManifestParser.hpp                  #
+// # Description: Parses Steam manifest files  #
+// #              and returns a json object    #
+// #############################################
+
 #pragma once
 #include <iostream>
 #include <sstream>
@@ -68,6 +75,7 @@ namespace m_parser
         // Consume the opening curly brace and check for empty object
         while (input.peek() != '{')
         {
+            // Avoid infinite loop if file is empty
             if (input.peek() == EOF)
 				return json::object();
             input.get();

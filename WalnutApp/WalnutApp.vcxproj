@@ -75,7 +75,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\dist\</OutDir>
     <IntDir>..\bin-int\Dist-windows-x86_64\WalnutApp</IntDir>
-    <TargetName>WalnutApp</TargetName>
+    <TargetName>GameManager</TargetName>
     <TargetExt>.exe</TargetExt>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
