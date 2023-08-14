@@ -65,8 +65,11 @@ namespace m_parser
         std::string line;
         std::getline(input, line);
 
-        // Consume the opening curly brace
-        while (input.peek() != '{') {
+        // Consume the opening curly brace and check for empty object
+        while (input.peek() != '{')
+        {
+            if (input.peek() == EOF)
+				return json::object();
             input.get();
         } input.get();
 

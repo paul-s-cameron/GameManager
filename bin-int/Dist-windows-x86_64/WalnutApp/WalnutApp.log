@@ -1,9 +1,5 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(516,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
-  WalnutApp.cpp
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.hpp(36,44): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\WalnutApp.cpp(44,25): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Steam.cpp
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.hpp(36,44): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\Steam.cpp(255,27): warning C4101: 'e': unreferenced local variable
-  Generating Code...
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\UI.hpp(22,44): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Coding\C++\Applications\GameManager\WalnutApp\src\includes\Steam.cpp(274,27): warning C4101: 'e': unreferenced local variable
   WalnutApp.vcxproj -> E:\Coding\C++\Applications\GameManager\dist\WalnutApp.exe

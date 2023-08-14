@@ -120,6 +120,8 @@ namespace Steam
 		// Get drive letter from path
 		string drive = Utils::upperString(path.substr(0, 2));
 
+		m_drivePaths[drive] = path;
+
 		if (registered_games.count("all_games") == 0)
 			registered_games["all_games"] = json::object();
 		if (registered_games["all_games"].count(drive) == 0)
@@ -141,6 +143,9 @@ namespace Steam
 					// Convert contents to json
 					istringstream inputStream(buffer.str());
 					json manifestData = parseJson(inputStream);
+
+					if (manifestData.empty())
+						continue;
 
 					if (registered_games["all_games"][drive].count("Steam") == 0)
 						registered_games["all_games"][drive]["Steam"] = json::object();
@@ -226,13 +231,27 @@ namespace Steam
 					json localconfigData = parseJson(inputStream);
 
 					m_steamUserData[username]["apps"] = json::array();
-					for (const auto& [appid, _] : localconfigData["Software"]["Valve"]["steam"]["apps"].items())
+					json appData;
+					if (localconfigData["Software"].find("Valve") != localconfigData["Software"].end())
+						appData = localconfigData["Software"]["Valve"];
+					else if (localconfigData["Software"].find("valve") != localconfigData["Software"].end())
+						appData = localconfigData["Software"]["valve"];
+					else continue;
+					if (appData.find("Steam") != appData.end())
+						appData = appData["Steam"];
+					else if (appData.find("steam") != appData.end())
+						appData = appData["steam"];
+					else continue;
+
+					for (const auto& [appid, _] : appData["apps"].items())
 						m_steamUserData[username]["apps"].push_back(appid);
 
 					// Add to m_steamAcounts
 					m_steamAccounts.push_back(username);
 
 					cout << "Loaded " << username << " with " << m_steamUserData[username]["apps"].size() << " apps" << endl;
+					ofstream logFile("log.txt", ios::app);
+					logFile << "Loaded " << username << " with " << m_steamUserData[username]["apps"].size() << " apps" << endl;
 				}
 				else cout << "User path " << user_path << " does not exist" << endl;
 			}

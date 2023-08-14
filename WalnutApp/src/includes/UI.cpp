@@ -378,6 +378,8 @@ void GameInfoWindow::Render()
 			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (ImGui::CalcTextSize(string(selected_game["name"]).c_str()).x / 2));
 			ImGui::Text(string(selected_game["name"]).c_str());
 
+			//LastUpdate();
+
 			ImGui::Separator();
 
 			float buttonWidth = ImGui::GetContentRegionAvail().x / 2 - 5;
@@ -406,7 +408,11 @@ void GameInfoWindow::DisplayAccount()
 	{
 		if (!Steam::m_steamGameAccounts.empty())
 			selected_game["selected_account"] = Steam::m_steamGameAccounts[0];
-		else return;
+		else
+		{
+			ImGui::Text("No accounts found");
+			return;
+		}
 	}
 
 	// Get index of current account
@@ -432,6 +438,32 @@ void GameInfoWindow::DisplayAccount()
 		ImGui::EndCombo();
 	}
 	ImGui::PopItemWidth();
+}
+
+void GameInfoWindow::LastUpdate()
+{
+	ifstream acfFile(Steam::m_drivePaths[string(selected_game["drive"])] + "\\steamapps\\appmanifest_" + string(selected_game["appid"]) + ".acf");
+	if (!acfFile.is_open())
+		return;
+
+	// Read the entire file content into the buffer
+	stringstream fileBuffer;
+	fileBuffer << acfFile.rdbuf();
+
+	// Convert contents to json
+	istringstream inputStream(fileBuffer.str());
+	json manifest = m_parser::parseJson(inputStream);
+
+	long long unixTimestamp = std::stoll(string(manifest["LastUpdated"]));
+	struct tm* timeinfo;
+	timeinfo = localtime(&unixTimestamp);
+	char buffer[80];
+	strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+	string label = "Last Updated: " + string(buffer);
+
+	float textWidth = ImGui::CalcTextSize(label.c_str()).x;
+	ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x / 2) - (textWidth / 2));
+	ImGui::Text(label.c_str());
 }
 
 void GameInfoWindow::ManifestDebug()

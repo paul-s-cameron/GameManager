@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <ctime>
 
 #include "json.hpp"
 
@@ -21,4 +22,5 @@
 #include "Utils.hpp"
 #include "Steam.hpp"
 #include "globals.hpp"
+#include "ManifestParser.hpp"
 #include "UI.hpp"

@@ -2,20 +2,6 @@
 
 using json = nlohmann::json;
 
-class GameInfoWindow
-{
-public:
-	GameInfoWindow() = default;
-
-	void Render();
-
-	void DisplayAccount();
-
-	void ManifestDebug();
-private:
-	int account = 0;
-};
-
 class GameGrid
 {
 public:
@@ -41,6 +27,22 @@ private:
 	const int horizontalPadding = 8;
 
 	ImVec2 buttonSize = { (float)iconSize, (float)iconSize };
+};
+
+class GameInfoWindow
+{
+public:
+	GameInfoWindow() = default;
+
+	void Render();
+
+	void DisplayAccount();
+
+	void LastUpdate();
+
+	void ManifestDebug();
+private:
+	int account = 0;
 };
 
 class AccountInfo

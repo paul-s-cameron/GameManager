@@ -5,6 +5,7 @@ using json = nlohmann::json;
 namespace Steam
 {
 	inline std::string				m_steamPath;
+	inline json 					m_drivePaths = json::object();
 	inline std::string				m_sExecutable = "steam.exe";
 	inline const char*				m_pSteamRegistry = "Software\\Valve\\Steam";
 	inline bool						m_bNeverCheckIfRunning = false;
