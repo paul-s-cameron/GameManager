@@ -4,6 +4,7 @@
 bin/*
 bin-int/*
 dist/*
+log.txt
 *.ico
 
 # Prerequisites
