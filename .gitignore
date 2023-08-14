@@ -1,9 +1,9 @@
 # Custom ignore
 .vs/
 *.json
-bin/
-bin-int/
-dist/
+bin/*
+bin-int/*
+dist/*
 *.ico
 
 # Prerequisites
